@@ -1,0 +1,224 @@
+body.body-admin{
+    background-color: white;
+}
+
+.table-title {
+    text-align: center;
+    background-color: #585858;
+    color: white;
+}
+
+table {
+    text-align: center;
+}
+
+.tableShow{
+    margin: 60px;
+}
+
+
+#table_id_filter {
+    text-align: left;
+    padding-right: 20px;
+}
+
+.btn {
+    padding: 12px 12px !important;
+}
+
+.buttonCreatePlayers{
+    margin-top: 90px !important;
+    text-align: end;
+    margin-right: 5% !important;
+}
+
+.btn-bottom { 
+    border-radius: 90px  !important;
+    font-size: large;
+    background-color: #00cc5f !important;
+    color: white  !important;
+}
+
+.btn-bottom:hover {
+    background-color: white !important;
+    border: 2px solid #00cc5f  !important;
+    color: #00cc5f  !important;
+}
+
+#row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -15px;
+    margin-top: 60px;
+}
+
+#rowOther {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 60px;
+}
+
+.col-form-label {
+    color: black;
+    font-weight: 100;
+}
+
+#title {
+    height: 40px;
+    border-radius: 60px !important;
+    background-color: #00cc5f !important;
+    border: 2px solid #00cc5f !important;
+    color: white !important;
+    margin-bottom: 10px !important;
+    padding-top: 7px;
+}
+
+.dataTables_wrapper {
+    position: relative;
+    clear: both;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.hide{
+    display: none !important;
+}
+
+.show{
+    display:show !important;
+}
+
+
+.submit { 
+    width: 100%;
+    border-radius: 60px;
+    font-size: large;
+    background-color: #00cc5f !important;
+    color: white;
+}
+
+.submit:hover {
+    background-color: white !important;
+    border: 2px solid #00cc5f;
+    color: #00cc5f;
+}
+
+.input-group-addon{
+    color: white !important;
+    background-color: #00cc5f !important;
+    padding-top: 6px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.remove-balance, .remove-report { 
+    width: 100% !important;
+    border-radius: 60px !important;
+    background-color: red !important;
+    color: white!important;
+}
+
+.remove-balance:hover, .remove-report:hover  {
+    background-color: white !important;
+    border: 2px solid red !important;
+    color: red !important;
+}
+
+.ajs-message {
+    color: white !important;
+}
+
+
+.addMarginRight {
+    margin-right: 15px;;
+}
+
+.addMargin {
+    margin-left: 15px;
+}
+
+.content-select select{
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+}
+
+.content-select select::-ms-expand {
+    display: none;
+}
+
+.content-select{
+	max-width: 250px;
+	position: relative;
+}
+
+.content-select select #changeStatus{
+    width: 160px;
+}
+ 
+.content-select select{
+	display: inline-block;
+	cursor: pointer;
+  	padding: 7px 10px;
+  	height: 42px;
+  	outline: 0; 
+  	border: 0;
+	border-radius: 0;
+	background: #f0f0f0;
+	color: #7b7b7b;
+	font-size: 1em;
+	color: black;
+	font-family: 'Montserrat-Bold', sans-serif;
+	border:2px solid rgba(0,0,0,0.2);
+    border-radius: 12px;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.content-select select {
+    padding: 10px;
+    padding-right: 30px;
+    background-image: url('../images/arrow-down.png');
+    background-repeat: no-repeat, repeat;
+    background-position: right .7em top 50%, 0 0;
+    background-size: 1em auto, 100%;
+}
+
+.content-select-bank , .content-select-wallet{
+    font-size: 12px;
+}
+ 
+.content-select:hover i{
+	margin-top: 3px;
+}
+
+.loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('../images/loadingTransparent.gif') 50% 50% no-repeat rgb(249,249,249);
+}
+
+.buttons-columnVisibility.active {
+    border-radius: 60px !important;
+    background-color: #00cc5f !important;
+    color: white !important;
+}
+
+.buttons-columnVisibility {
+    border-radius: 60px !important;
+    background-color: white !important;
+    color: black !important;
+}
+
+.fileinput-preview img {
+    width: 150px;
+}
+
+strong {
+    color: black !important;
+}

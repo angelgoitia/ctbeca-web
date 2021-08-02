@@ -1,0 +1,93 @@
+  <div class="wrapper ">
+    <div class="sidebar" data-color="green" data-background-color="white" style="background-color: white;">
+      <!--
+        Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
+
+        Tip 2: you can also add an image using data-image tag
+    -->
+      <div class="logo" style="background-color: white;"><a href="{{route('admin.dashboard')}}" class="simple-text logo-normal">
+        <img src="{{ asset('images/logo/logo.png') }}" alt="image" width="160px" height="60px">
+        </a>
+      </div>
+      <div class="sidebar-wrapper" style="background-color: white;">
+        <ul class="nav">
+          @if(Auth::guard('admin')->check())
+            <li class="nav-item" id="nav-dashboard">
+              <a class="nav-link" href="{{route('admin.dashboard')}}">
+                <i class="material-icons">dashboard</i>
+                <p>Inicio</p>
+              </a>
+            </li>
+            <li class="nav-item" id="nav-players">
+              <a class="nav-link" href="{{route('admin.listPlayers')}}">
+                <i class="material-icons">manage_accounts</i>
+                <p>Becados</p>
+              </a>
+            </li>
+            <li class="nav-item" id="nav-deposits">
+              <a class="nav-link" href="#">
+                <i class="material-icons">account_balance</i>
+                Depositos
+              </a>
+            </li>
+
+          @else
+            <li class="nav-item" id="nav-dashboard">
+              <a class="nav-link" href="{{route('player.dashboard')}}">
+                <i class="material-icons">dashboard</i>
+                <p>Inicio</p>
+              </a>
+            </li>
+            <li class="nav-item" id="nav-gameHistory">
+              <a class="nav-link" href="#">
+                <i class="material-icons">description</i>
+                <p>Historial Axie Infinity</p>
+              </a>
+            </li>
+            <li class="nav-item" id="nav-depositHistory">
+              <a class="nav-link" href="#">
+                <i class="material-icons">description</i>
+                <p>Historial Pago</p>
+              </a>
+            </li>
+          @endif
+          <li class="nav-item">
+            <a class="nav-link" href="{{route('logout')}}">
+            <i class="material-icons">login</i>
+              <p>Salir</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <style>
+      .ajs-message {
+        color: white !important;
+      }
+      button.ajs-button.ajs-ok {
+          border-radius: 60px !important;
+          border: 2px solid #00cc5f !important;
+          background-color: #00cc5f !important;
+          color: white !important;
+      }
+
+      button.ajs-button.ajs-ok:hover {
+          border-radius: 60px !important;
+          background-color: white !important;
+          border: 2px solid #00cc5f !important;
+          color: #00cc5f !important;
+      }
+
+      button.ajs-button.ajs-cancel {
+          border-radius: 60px !important;
+          border: 2px solid #ffffff80 !important;
+          color: black !important;
+      }
+
+      button.ajs-button.ajs-cancel:hover {
+          border-radius: 60px !important;
+          background-color: #ffffff80 !important;
+          border: 2px solid #ffffff80 !important;
+          color: black !important;
+      }
+    </style>
