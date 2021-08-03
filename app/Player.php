@@ -19,4 +19,14 @@ class Player extends Authenticatable
     protected $fillable = [
         'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr'
     ];
+
+    public function totalSlp()
+    {
+        return $this->hasMany('App\TotalSlp');
+    }
+
+    public function lastSLP()
+    {
+        return $this->hasOne(TotalSlp::class)->orderBy('created_at', 'DESC');
+    }
 }

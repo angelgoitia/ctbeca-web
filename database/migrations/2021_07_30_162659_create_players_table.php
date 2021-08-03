@@ -16,13 +16,13 @@ class CreatePlayersTable extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->id();
             $table->string('name',50);
-            $table->string('email',100)->unique();
+            $table->string('email',100);
             $table->string('phone',20);
             $table->string('telegram',50);
             $table->string('reference', 50);
-            $table->string('wallet',100)->unique();
+            $table->string('wallet',100);
             $table->string('urlCodeQr')->nullable();
-            $table->string('emailGame',50)->unique();
+            $table->string('emailGame',50);
             $table->string('passwordGame',100);
             $table->rememberToken();
             $table->timestamps();

@@ -24,6 +24,12 @@
                 <p>Becados</p>
               </a>
             </li>
+            <li class="nav-item" id="nav-gameHistory">
+              <a class="nav-link" href="{{route('admin.listDaily')}}">
+                <i class="material-icons">description</i>
+                <p>Historial Axie Infinity</p>
+              </a>
+            </li>
             <li class="nav-item" id="nav-deposits">
               <a class="nav-link" href="#">
                 <i class="material-icons">account_balance</i>

@@ -60,7 +60,7 @@
                         <br>
                         <br>
                         @if(!empty($player->urlCodeQr))
-                            <img src="{{$player->urlCodeQr}}" width="150px" style="text-align: center;">
+                            <img src="{{asset('storage/'.$player->urlCodeQr)}}" width="150px" style="padding: 10px; display: block; margin: 0 auto;">
                         @endif
                         <br>
                         <br>

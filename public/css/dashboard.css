@@ -222,3 +222,54 @@ table {
 strong {
     color: black !important;
 }
+
+.card-filter{
+    background-color: #e6e6e6 !important;
+}
+
+th.notBorder{
+    border: 0px solid white !important;
+}
+
+.outerDiv {
+    background: grey;
+    height: 200px;
+    width: 100px;
+    border: 1px solid black;
+    border-bottom: 0;
+    border-left: 0;
+    transform: skew(-30deg) translateX(58%);
+}
+  
+th:first-child .outerDiv {
+    border-left: 1px solid black;
+    position: relative;
+}
+  
+.innerDiv {
+    position: absolute;
+    width: 250px;
+    height: 85px;
+    bottom: -33%;
+    left: 35px;
+    transform: skew(31.5deg) rotate(-60deg);
+    transform-origin: 0 0;
+    text-align: left;
+    color: white;
+}
+    
+table .table-rotate {
+    border-collapse: collapse;
+}
+  
+table .table-rotate td {
+    border: 1px solid black;
+}
+
+.table-rotate {
+    width: 0 !important;
+}
+
+.addPadding{
+    padding: 50px !important;
+}

@@ -30,15 +30,15 @@
                                 </li>
                                 @if(Auth::guard('admin')->check())
                                     <li class="nav-item">
-                                        <a class="nav-link" href="#">Ingresar</a>
+                                        <a class="nav-link" href="{{route('admin.dashboard')}}">Ingresar</a>
                                     </li>
                                 @elseif(Auth::guard('web')->check())
                                     <li class="nav-item">
-                                        <a class="nav-link" href="#">Ingresar</a>
+                                        <a class="nav-link" href="{{route('player.dashboard')}}">Ingresar</a>
                                     </li>
                                 @else
                                     <li class="nav-item">
-                                        <a class="nav-link" href="#">Iniciar Sesión</a>
+                                        <a class="nav-link" href="{{route('player.login')}}">Iniciar Sesión</a>
                                     </li>
                                 @endif
                             </ul>

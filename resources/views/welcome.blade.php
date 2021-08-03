@@ -7,7 +7,7 @@
         <meta name="description" content="">
         <meta name="author" content="">
         <title>CTBeca</title>
-        
+        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('images/logo/logoct.svg') }}" />
         <!-- ***** All CSS Files ***** -->
 
         <!-- Style css -->

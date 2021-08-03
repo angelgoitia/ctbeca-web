@@ -17,6 +17,10 @@ Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
+Route::fallback(function () {
+    return redirect()->route('welcome');
+});
+
 Route::get('/admin/login', function () {
     if (Auth::guard('web')->check()){
         return redirect(route('player.dashboard'));
@@ -52,6 +56,8 @@ Route::group(['middleware'=>'admin'], function() {
     Route::get('/admin/becados', 'AdminController@listPlayers')->name('admin.listPlayers');
     Route::post('/admin/becados/form', 'AdminController@formPlayer')->name('admin.formPlayer');
     Route::post('/admin/becados/show', 'AdminController@showPlayer')->name('admin.showPlayer');
-
-    Route::get('/admin/email', 'AdminController@emailPreview')->name('admin.emailPreview');
+    Route::post('/admin/juego', 'AdminController@listDaily')->name('admin.listDaily');
+    Route::get('/admin/juego', 'AdminController@listDaily')->name('admin.listDaily');
+    
+    Route::get('/admin/api', 'AdminController@apiSLP')->name('admin.apiSLP');
 });

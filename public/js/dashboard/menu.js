@@ -5,5 +5,7 @@ $(document).ready( function () {
         $("#title-navbar").html("Inicio");
     else if(statusMenu == "players")
         $("#title-navbar").html("Becados");
+    else if(statusMenu == "gameHistory")
+        $("#title-navbar").html("Historial Axie infinity");
 
 });

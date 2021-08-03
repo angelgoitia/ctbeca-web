@@ -17,10 +17,17 @@
       @include('auth.navbar')
         <div class="row buttonCreatePlayers">
             <div class="col">
-                <button type='button' class="btn btn-bottom newPlayer"><i class="material-icons">edit</i> Crear Becados</button>
+                <button type='button' class="btn btn-bottom" onclick="showPlayer(0)"><i class="material-icons">edit</i> Crear Becados</button>
             </div>
         </div>
         <div class="tableShow">
+            <div class="row">
+                @if (Session::has('message'))
+                    <div class="alert alert-danger">
+                        <strong style="color:white !important;">Error: </strong> {{Session::get('message') }}
+                    </div>
+                @endif
+            </div>
             <table id="table_id" class="table table-bordered display" style="width:100%;">
                 <thead>
                     <tr class="table-title">
@@ -42,14 +49,17 @@
                         <td>{{ $player->email }}</td>
                         <td>{{ $player->phone }}</td>
                         <td>{{ $player->reference }}</td>
-                        <td></td>
+                        <td>
+                            <botton class="btn btn-bottom" onclick="showPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Modificar"><i class="material-icons">edit</i></botton>
+                            <botton class="btn btn-bottom" onclick="showSLP({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver historial"><i class="material-icons">visibility</i></botton>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        <div id="showPlayer"></div>
     </div>
-    @include('admin.modal.player')
     @include('admin.bookshopBottom')
     <script> 
         $( ".loader" ).fadeOut("slow"); 
@@ -82,11 +92,6 @@
                 },
             });
 
-            $(".newPlayer").click(function (e) { 
-                e.preventDefault();
-                $('#playerModal').modal('show');
-            });
-
         });
         $(".main-panel").perfectScrollbar('update');
 
@@ -94,7 +99,7 @@
         {
             $.ajax({
                 url: "{{route('admin.showPlayer')}}", 
-                data: {"id" : id},
+                data: {"_token": "{{ csrf_token() }}", "id" : id},
                 type: "POST",
             }).done(function(data){
                 $('#showPlayer').html(data.html);
