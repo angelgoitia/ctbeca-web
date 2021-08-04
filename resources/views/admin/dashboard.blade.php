@@ -72,7 +72,7 @@
             <div class="col-md-12">
               <div class="card card-chart">
                 <div class="card-header card-header-success">
-                  <div class="ct-chart" id="dailySalesChart"></div>
+                  <div class="ct-chart" id="dailySlpChart"></div>
                 </div>
                 <div class="card-body">
                   <h4 class="card-title">LSP Diarias</h4>

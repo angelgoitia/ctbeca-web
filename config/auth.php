@@ -44,13 +44,11 @@ return [
         'api' => [
             'driver' => 'passport',
             'provider' => 'users',
-            'hash' => false,
         ],
 
         'player' => [
             'driver' => 'passport',
             'provider' => 'players',
-            'hash' => false,
         ],
 
         'admin'  => [

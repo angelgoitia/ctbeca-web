@@ -39,7 +39,7 @@ class DailySlp extends Command
      */
     public function handle()
     {
-
+        $status = 0;
         $players = Player::with('lastSLP')->get();
 
         foreach ($players as $player)
@@ -52,19 +52,27 @@ class DailySlp extends Command
             
             $resultApi = json_decode(curl_exec($ch), true);
             curl_close($ch); 
-            
-            $dailyYesterday = empty($player->lastSLP)? 0 : $player->lastSLP->total;
-            $totaldaily = intval($resultApi['total_slp']) - intval($resultApi['total_slp']);
-            
-            TotalSlp::create([
-                'player_id' => $player->id,
-                'total' => intval($resultApi['total_slp']),
-                'daily' => $totaldaily,
-            ]);
+
+            if($resultApi && isset($resultApi['total_slp'])){
+                $dailyYesterday = empty($player->lastSLP)? 0 : $player->lastSLP->total;
+                $totaldaily = intval($resultApi['total_slp']) - intval($resultApi['total_slp']);
+                
+                TotalSlp::create([
+                    'player_id' => $player->id,
+                    'total' => intval($resultApi['total_slp']),
+                    'daily' => $totaldaily,
+                ]);
+
+                $status++;
+            }
             
         }
 
-        $this->info('El corte se ha realizado correctamente');
+        if(count($players) == $status){
+            $this->info('El corte se ha realizado correctamente');
+        }else{
+            $this->info('El corte se ha realizado '.$status.' de '.count($players).' Becados');
+        }
             
     }
 }
