@@ -91,14 +91,22 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
-    public function user(Request $request)
+    public function admin(Request $request)
     {
-        return response()->json($request->user());
+        $players = Player::with('totalSLP')->get();
+
+        return response()->json(
+            [
+                'statusCode' => 201,
+                'admin' => $request->user(),
+                'players' => $players,
+            ]
+        );
     }
 
     public function player(Request $request)
     {
-        $player = Player::where("wallet", request('wallet'))->with('totalSLP')->first();
+        $player = Player::whereId($request->user()->id)->with('totalSLP')->first();
 
         return response()->json(['statusCode' => 201,'data' => $request->user()]);
     }
