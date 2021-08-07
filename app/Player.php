@@ -11,6 +11,8 @@ class Player extends Authenticatable
 {
     use HasApiTokens, Notifiable;
 
+    protected $table = 'players';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -18,6 +20,10 @@ class Player extends Authenticatable
      */
     protected $fillable = [
         'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr'
+    ];
+
+    protected $hidden = [
+        'password',
     ];
 
     public function totalSlp()

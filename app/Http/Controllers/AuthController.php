@@ -67,19 +67,16 @@ class AuthController extends Controller
 
         $tokenResult = $player->createToken('Personal Access Token');
         $token = $tokenResult->token;
-
-        if ($request->remember_me) {
-            $token->expires_at = Carbon::now()->addWeeks(1);
-        }
-
+        $token->expires_at = Carbon::now()->addYear(5);
         $token->save();
+
         return response()->json([
             'statusCode' => 201,
             'type'         => 1,
             'access_token' => $tokenResult->accessToken,
             'token_type'   => 'Bearer',
             'expires_at'   => Carbon::parse(
-                $tokenResult->token->expires_at)
+                $token->expires_at)
                     ->toDateTimeString(),
             'player'       => $player,
         ]);
@@ -108,6 +105,6 @@ class AuthController extends Controller
     {
         $player = Player::whereId($request->user()->id)->with('totalSLP')->first();
 
-        return response()->json(['statusCode' => 201,'data' => $request->user()]);
+        return response()->json(['statusCode' => 201, 'player' => $player]);
     }
 }
