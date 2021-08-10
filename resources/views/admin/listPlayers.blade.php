@@ -51,7 +51,7 @@
                         <td>{{ $player->reference }}</td>
                         <td>
                             <botton class="btn btn-bottom" onclick="showPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Modificar"><i class="material-icons">edit</i></botton>
-                            <botton class="btn btn-bottom" onclick="showSLP({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver historial"><i class="material-icons">visibility</i></botton>
+                            <botton class="btn btn-bottom" onclick="showAnimals({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver Animales"><i class="material-icons">visibility</i></botton>
                         </td>
                     </tr>
                     @endforeach

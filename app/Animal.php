@@ -4,10 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TotalSlp extends Model
+class Animal extends Model
 {
     protected $fillable = [
-        'id', 'player_id', 'total', 'daily', 'created_at', 'date'
+        'id', 'player_id', 'name', 'code', 'type', 'nomenclature', 'image',
     ];
 
     public function player()

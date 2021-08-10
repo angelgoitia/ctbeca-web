@@ -19,7 +19,7 @@ class Player extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr'
+        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'user', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr'
     ];
 
     protected $hidden = [
@@ -34,5 +34,10 @@ class Player extends Authenticatable
     public function lastSLP()
     {
         return $this->hasOne(TotalSlp::class)->orderBy('created_at', 'DESC');
+    }
+
+    public function animals()
+    {
+        return $this->hasMany('App\Animal');
     }
 }

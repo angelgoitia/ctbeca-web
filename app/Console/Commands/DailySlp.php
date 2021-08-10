@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Player;
 use App\TotalSlp;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class DailySlp extends Command
@@ -40,7 +41,10 @@ class DailySlp extends Command
     public function handle()
     {
         $status = 0;
-        $players = Player::with('lastSLP')->get();
+        $now = Carbon::now()->format('Y-m-d');
+        $players = Player::with(['totalSLP' => function($q) use($now) {
+            $q->where('date', "!=", $now)->orderBy('created_at','DESC'); 
+        }])->get();
 
         foreach ($players as $player)
         {
@@ -54,17 +58,25 @@ class DailySlp extends Command
             curl_close($ch); 
 
             if($resultApi && isset($resultApi['total_slp'])){
-                $dailyYesterday = empty($player->lastSLP)? 0 : $player->lastSLP->total;
-                $totaldaily = intval($resultApi['total_slp']) - intval($resultApi['total_slp']);
+                $dailyYesterday = empty($player->totalSLP)? 0 : $player->totalSLP[0]->total;
+                $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
                 
-                TotalSlp::create([
-                    'player_id' => $player->id,
-                    'total' => intval($resultApi['total_slp']),
-                    'daily' => $totaldaily,
-                ]);
+                TotalSlp::updateOrCreate(
+                    [
+                        'player_id'     => $player->id,
+                        'date'          => Carbon::now()->format('Y-m-d'),
+                    ],
+                    [
+                        'player_id' => $player->id,
+                        'total'     => intval($resultApi['total_slp']),
+                        'daily'     => $totaldaily,
+                    ]
+                );
 
                 $status++;
             }
+
+            app('App\Http\Controllers\AdminController')->getUpdateAnimal($player->id, $player->wallet);
             
         }
 

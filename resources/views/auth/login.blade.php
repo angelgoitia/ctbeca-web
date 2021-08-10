@@ -26,7 +26,7 @@
     <!--====== Scroll To Top Area End ======-->
 
     <div class="main">
-        @include('auth.navbar')
+        @include('navbar.navbarLogin')
 
         <!-- ***** Welcome Area Start ***** -->
         <section id="home" class="section welcome-area bg-overlay d-flex align-items-center">

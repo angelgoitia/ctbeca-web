@@ -107,6 +107,12 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Usuario </label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" id="user" name="user" placeholder="Usuario" value="{{$playerSelect? $playerSelect->user : ''}}" pattern="[A-Za-z0-9_]{5,20}" autocomplete="off" required>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">Correo Electrónico </label>
                         <div class="col-sm-6">
                             <input type="email" class="form-control" id="emailGame" name="emailGame" placeholder="joedoe@hotmail.com" value="{{$playerSelect? $playerSelect->emailGame : ''}}" autocomplete="off" required>

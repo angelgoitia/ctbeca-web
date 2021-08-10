@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Session;
+use App\Animal;
 use App\Player;
 use App\TotalSlp;
 use Carbon\Carbon;
@@ -85,24 +86,39 @@ class AdminController extends Controller
         return view('admin.listPlayers', compact('statusMenu', 'playersAll', 'playerSelect'));
     }
 
-    public function formPlayer(Request $request)
+    public function formPlayer(Request $request, $statusApi = false)
     {
+        dd($statusApi);
+        $status = false ;
+        $errorMsg;
         
-        if(Player::where('wallet',  str_replace("ronin:","", $request->wallet))->first())
+        if(Player::where('user',  $request->user)->first())
         {
-            Session::flash('message', "Billetera ingresado ya se encuentra registrado en el sistema");
-            return Redirect::back();
+            $status = true;
+            $errorMsg = "El usuario ya e encuentra registrado en el sistema";
+        }else if(Player::where('wallet',  str_replace("ronin:","", $request->wallet))->first())
+        {
+            $status = true;
+            $errorMsg = "Billetera ingresado ya se encuentra registrado en el sistema";
         }
         else if(Player::where('email', $request->email)->first())
         {
-            Session::flash('message', "Correo Electrónico del jugador ya se encuentra registrado en el sistema");
-            return Redirect::back();
+            $status = true;
+            $errorMsg = "Correo Electrónico del jugador ya se encuentra registrado en el sistema";
         }
         else if(Player::where('emailGame', $request->emailGame)->first())
         {
-            Session::flash('message', "Correo Electrónico del Axie infinity ya se encuentra registrado en el sistema!");
-            return Redirect::back();
+            $status = true;
+            $errorMsg = "Correo Electrónico del Axie infinity ya se encuentra registrado en el sistema!";
         }
+
+        if($status && !$statusApi){
+            Session::flash('message', $errorMsg);
+            return Redirect::back();
+        }else if($status && $statusApi){
+            return response()->json(['statusCode' => 400, 'message' => $errorMsg]);
+        }
+
 
         $file = $request->file('codeQr');
 
@@ -115,6 +131,7 @@ class AdminController extends Controller
                     'telegram'      => $request->telegram,
                     'email'         => $request->email,
                     'reference'     => $request->reference,
+                    'user'          => $request->user,
                     'emailGame'     => $request->emailGame,
                     'passwordGame'  => bcrypt($request->passwordGame),
                     'wallet'        => str_replace("ronin:","", $request->wallet)
@@ -127,6 +144,7 @@ class AdminController extends Controller
             $player->telegram      = $request->telegram;
             $player->email         = $request->email;
             $player->reference     = $request->reference;
+            $player->user          = $request->user;
             $player->emailGame     = $request->emailGame;
             $player->passwordGame  = bcrypt($request->passwordGame);
             $player->save();
@@ -136,9 +154,20 @@ class AdminController extends Controller
             \Storage::disk('public')->delete($request->urlPrevius);
         }
         
-        if(!empty($file)){
+        if(!empty($file) && !$statusApi){
+
             $urlCodeQr = 'players/'.$player->id.'/codeQr-'.Carbon::now()->format('d-m-Y_H-i-s').'.jpg';
             \Storage::disk('public')->put($urlCodeQr, file_get_contents($request->file('codeQr'))); 
+            
+            $player->urlCodeQr = $urlCodeQr;
+            $player->save();
+
+        }else if(!empty($file) && $statusApi) {
+
+            $urlCodeQr = 'players/'.$player->id.'/codeQr-'.Carbon::now()->format('d-m-Y_H-i-s').'.jpg';
+            $realImage = base64_decode($request->image);
+            \Storage::disk('public')->put($urlCodeQr, $realImage); 
+
             $player->urlCodeQr = $urlCodeQr;
             $player->save();
         }
@@ -149,7 +178,75 @@ class AdminController extends Controller
             new NewPlayer($player, $request->passwordGame)
         );  
 
-        return redirect()->route('admin.listPlayers');
+        if($statusApi)
+            return response()->json(['statusCode' => 201, 'message' => "saved correctly! "]);
+        else
+            return redirect()->route('admin.listPlayers');
+    }
+
+    public function getUpdateAnimal($id, $wallet){
+        $urlApi = [
+            'https://api.axie.com.ph/get-axies/0x', 'https://axie-proxy.secret-shop.buzz/_axiesPlease/0x'
+        ];
+
+        foreach ($urlApi as $key => $api){
+            $count = 0;
+
+            $url = $api.$wallet;
+            $ch = curl_init($url);
+            
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+            $resultApi = json_decode(curl_exec($ch), true);
+            curl_close($ch);
+
+            if($key == 0 && $resultApi && $resultApi['results']){
+
+                foreach($resultApi['available_axies']['results'] as $axie)
+                {
+                    $count ++;
+                    $name = explode(" ", $axie['name']);
+
+                    Animal::updateOrCreate(
+                        [
+                            'player_id'    => $id,
+                            'code'          => $axie['id'],
+                        ],
+                        [
+                            'name'          => $name[0],
+                            'nomenclature'  => $name[1],
+                            'type'          => $axie['class'],
+                            'image'         => $axie['image'],
+                        ]
+                    );
+
+                }
+
+            }else if($key == 1 && $resultApi && isset($resultApi['available_axies']['results'])){
+
+                foreach($resultApi['available_axies']['results'] as $axie)
+                {
+                    $count ++;
+                    $name = explode(" ", $axie['name']);
+                    Animal::updateOrCreate(
+                        [
+                            'player_id'    => $id,
+                            'code'          => $axie['id'],
+                        ],
+                        [
+                            'name'          => $name[0],
+                            'nomenclature'  => $name[1],
+                            'type'          => $axie['class'],
+                            'image'         => $axie['image'],
+                        ]
+                    );
+                }
+            }
+
+        }
+
     }
 
     public function showPlayer(Request $request)
@@ -181,17 +278,14 @@ class AdminController extends Controller
 
 
     public function apiSLP(){
-        $players = Player::with('lastSLP')->get();
-    
+        $now = Carbon::now()->format('Y-m-d');
+        $players = Player::with(['totalSLP' => function($q) use($now) {
+            $q->where('date', "!=", $now)->orderBy('created_at','DESC'); 
+        }])->get();
+
+
         foreach ($players as $player)
         {
-            /* dd($player->lastSLP->total); */
-            /* TotalSlp::create([
-                'player_id' => $player->id,
-                'total' => 50,
-                'daily' => 40,
-            ]);  */
-
             $url = "https://api.lunaciarover.com/stats/0x".$player->wallet;
             $ch = curl_init($url);
 
@@ -200,15 +294,20 @@ class AdminController extends Controller
             
             $resultApi = json_decode(curl_exec($ch), true);
             curl_close($ch); 
-            
-            $dailyYesterday = empty($player->lastSLP)? 0 : $player->lastSLP->total;
-            $totaldaily = intval($resultApi['total_slp']) - intval($resultApi['total_slp']);
-            
-            TotalSlp::create([
-                'player_id' => $player->id,
-                'total' => intval($resultApi['total_slp']),
-                'daily' => $totaldaily,
-            ]);
+
+            if($resultApi && isset($resultApi['total_slp'])){
+                print(empty($player->totalSLP)? 0 : $player->totalSLP[0]->total);
+                $dailyYesterday = empty($player->totalSLP[0])? 0 : $player->totalSLP[0]->total;
+                print(",");
+                print($dailyYesterday);
+
+                $totaldaily = intval($resultApi['total_slp']) - intval($dailyYesterday);
+                
+                dd($totaldaily);
+
+                $status++;
+            }
+
         }
     }
 
