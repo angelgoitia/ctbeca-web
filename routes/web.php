@@ -54,8 +54,9 @@ Route::group(['middleware'=>'admin'], function() {
     Route::get('/admin/', 'AdminController@dashboard')->name('admin.dashboard');
     Route::post('/admin/dataGraphic', 'AdminController@dataGraphic')->name('admin.dataGraphic');
     Route::get('/admin/becados', 'AdminController@listPlayers')->name('admin.listPlayers');
-    Route::post('/admin/becados/form', 'AdminController@formPlayer')->name('admin.formPlayer');
-    Route::post('/admin/becados/show', 'AdminController@showPlayer')->name('admin.showPlayer');
+    Route::post('/admin/becado/form', 'AdminController@formPlayer')->name('admin.formPlayer');
+    Route::post('/admin/becado/show', 'AdminController@showPlayer')->name('admin.showPlayer');
+    Route::post('/admin/becado/edit', 'AdminController@editPlayer')->name('admin.editPlayer');
     Route::post('/admin/juego', 'AdminController@listDaily')->name('admin.listDaily');
     Route::get('/admin/juego', 'AdminController@listDaily')->name('admin.listDaily');
     

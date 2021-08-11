@@ -231,6 +231,8 @@ class AdminController extends Controller
             new NewPlayer($player, $request->passwordGame)
         );  
 
+        $this->getUpdateAnimal($player->id, $player->wallet);
+
         if($request->statusApi == 'true')
             return response()->json(['statusCode' => 201, 'message' => "saved correctly! "]);
         else
@@ -304,6 +306,14 @@ class AdminController extends Controller
 
     public function showPlayer(Request $request)
     {
+        $player = Player::whereId($request->id)->with('animals')->first();
+
+        $returnHTML=view('admin.modal.detailsPlayer', compact('player'))->render();
+        return response()->json(array('html'=>$returnHTML));
+    }
+
+    public function editPlayer(Request $request)
+    {
         $playerSelect = Player::whereId($request->id)->first();
 
         $returnHTML=view('admin.modal.player', compact('playerSelect'))->render();
@@ -331,37 +341,8 @@ class AdminController extends Controller
 
 
     public function apiSLP(){
-        $now = Carbon::now()->format('Y-m-d');
-        $players = Player::with(['totalSLP' => function($q) use($now) {
-            $q->where('date', "!=", $now)->orderBy('created_at','DESC'); 
-        }])->get();
-
-
-        foreach ($players as $player)
-        {
-            $url = "https://api.lunaciarover.com/stats/0x".$player->wallet;
-            $ch = curl_init($url);
-
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-            
-            $resultApi = json_decode(curl_exec($ch), true);
-            curl_close($ch); 
-
-            if($resultApi && isset($resultApi['total_slp'])){
-                print(empty($player->totalSLP)? 0 : $player->totalSLP[0]->total);
-                $dailyYesterday = empty($player->totalSLP[0])? 0 : $player->totalSLP[0]->total;
-                print(",");
-                print($dailyYesterday);
-
-                $totaldaily = intval($resultApi['total_slp']) - intval($dailyYesterday);
-                
-                dd($totaldaily);
-
-                $status++;
-            }
-
-        }
+        $player = Player::whereId(1)->with('animals')->first();
+        dd($player->animals);
     }
 
 }

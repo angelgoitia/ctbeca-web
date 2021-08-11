@@ -50,8 +50,8 @@
                         <td>{{ $player->phone }}</td>
                         <td>{{ $player->reference }}</td>
                         <td>
-                            <botton class="btn btn-bottom" onclick="showPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Modificar"><i class="material-icons">edit</i></botton>
-                            <botton class="btn btn-bottom" onclick="showAnimals({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver Animales"><i class="material-icons">visibility</i></botton>
+                        <botton class="btn btn-bottom" onclick="showPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver"><i class="material-icons">visibility</i></botton>
+                            <botton class="btn btn-bottom" onclick="editPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Modificar"><i class="material-icons">edit</i></botton>
                         </td>
                     </tr>
                     @endforeach
@@ -95,10 +95,10 @@
         });
         $(".main-panel").perfectScrollbar('update');
 
-        function showPlayer(id)
+        function editPlayer(id)
         {
             $.ajax({
-                url: "{{route('admin.showPlayer')}}", 
+                url: "{{route('admin.editPlayer')}}", 
                 data: {"_token": "{{ csrf_token() }}", "id" : id},
                 type: "POST",
             }).done(function(data){
@@ -107,6 +107,22 @@
             }).fail(function(result){
                 alertify.error('Sin Conexión, intentalo de nuevo mas tardes!');
                 $('#playerModal').modal('hide'); 
+                $('#showPlayer').html();
+            });
+        }
+
+        function showPlayer(id)
+        {
+            $.ajax({
+                url: "{{route('admin.showPlayer')}}", 
+                data: {"_token": "{{ csrf_token() }}", "id" : id},
+                type: "POST",
+            }).done(function(data){
+                $('#showPlayer').html(data.html);
+                $('#showplayerModal').modal('show'); 
+            }).fail(function(result){
+                alertify.error('Sin Conexión, intentalo de nuevo mas tardes!');
+                $('#showplayerModal').modal('hide'); 
                 $('#showPlayer').html();
             });
         }

@@ -36,7 +36,7 @@ class AuthController extends Controller
         $token->expires_at = Carbon::now()->addYear(5);
         $token->save();
 
-        $players = Player::with('totalSLP')->get();
+        $players = Player::with('totalSLP')->with('animals')->get();
 
         return response()->json([
             'statusCode' => 201,
@@ -58,7 +58,7 @@ class AuthController extends Controller
         ]);
 
         $credentials = request(['wallet']);
-        $player = Player::where("wallet", request('wallet'))->with('totalSLP')->first();
+        $player = Player::where("wallet", request('wallet'))->with('totalSLP')->with('animals')->first();
 
         if (!$player) {
             return response()->json([
