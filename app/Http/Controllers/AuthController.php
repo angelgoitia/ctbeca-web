@@ -90,7 +90,7 @@ class AuthController extends Controller
 
     public function admin(Request $request)
     {
-        $players = Player::with('totalSLP')->get();
+        $players = Player::with('totalSLP')->with('animals')->get();
 
         return response()->json(
             [
@@ -103,7 +103,7 @@ class AuthController extends Controller
 
     public function player(Request $request)
     {
-        $player = Player::whereId($request->user()->id)->with('totalSLP')->first();
+        $player = Player::whereId($request->user()->id)->with('totalSLP')->with('animals')->first();
 
         return response()->json(['statusCode' => 201, 'player' => $player]);
     }

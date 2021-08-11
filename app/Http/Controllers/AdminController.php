@@ -53,10 +53,35 @@ class AdminController extends Controller
         $totalSlpToday = 0;
         $totalSlpYesterday= 0;
         $totalSlpWeek = 0;
+        $startDate = Carbon::now()->setDay(1)->subMonth(2)->format('Y-m-d');
+        $now = Carbon::now()->format('Y-m-d');
+        $yesteday = Carbon::now()->subDays(1)->format('Y-m-d');
+        $startWeek = Carbon::now()->subDays(6)->format('Y-m-d');
+
+        $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $now) {
+            $q->whereDate('created_at', ">=",$startDate)
+                ->whereDate('created_at', "<=",$now); 
+        }])->get();
+
+        foreach($playersAll as $player){
+
+            foreach($player->totalSLP as $slp){
+
+                if($now == Carbon::parse($slp->date)->format('Y-m-d'))
+                    $totalSlpToday += $slp->daily;
+
+                if($yesteday == Carbon::parse($slp->date)->format('Y-m-d'))
+                    $totalSlpYesterday += $slp-> daily;
+
+                if(Carbon::parse($slp->date)->format('Y-m-d') >= $startWeek && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
+                    $totalSlpWeek += $slp-> daily;
+            }
+ 
+        }
 
         $statusMenu = "dashboard";
         $idPlayer = 0;
-        return view('admin.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpWeek", "statusMenu", 'idPlayer', 'totalPendingUSD', 'totalPendingBS'));
+        return view('admin.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpWeek", "statusMenu" , "idPlayer"));
     }
 
     public function dataGraphic(Request $request)
@@ -64,12 +89,20 @@ class AdminController extends Controller
         $month = Carbon::now()->format('m');
         $years = Carbon::now()->format('Y');
         $listDay= array();
-        $count=1;
 
         for ($i = 0; $i < 7; $i++) {
             $totalSlp = 0;
+            $playersAll = Player::with(['totalSLP' => function($q) use($years, $month, $i) {
+                $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(6-$i)->format('d'))."%"); 
+            }])->get();
 
-            $listDay[$i]['dia'] = Carbon::now()->subDay(6-$i)->format('d');
+            foreach($playersAll as $player){
+                foreach($player->totalSLP as $slp){
+                    $totalSlp += $slp->daily;
+                }
+            }
+
+            $listDay[$i]['day'] = Carbon::now()->subDay(6-$i)->format('d');
             $listDay[$i]['totalSlp'] = $totalSlp;
         }
 
@@ -86,41 +119,62 @@ class AdminController extends Controller
         return view('admin.listPlayers', compact('statusMenu', 'playersAll', 'playerSelect'));
     }
 
-    public function formPlayer(Request $request, $statusApi = false)
+    public function formPlayer(Request $request)
     {
-        dd($statusApi);
+
         $status = false ;
         $errorMsg;
+        if(empty($request->playerSelect))
+        {
+            if(Player::where('user',  $request->user)->first())
+            {
+                $status = true;
+                $errorMsg = "El usuario ya e encuentra registrado en el sistema";
+            }else if(Player::where('wallet', str_replace("ronin:","", $request->wallet))->first())
+            {
+                $status = true;
+                $errorMsg = "Billetera ingresado ya se encuentra registrado en el sistema";
+            }
+            else if(Player::where('email', $request->email)->first())
+            {
+                $status = true;
+                $errorMsg = "Correo Electrónico del jugador ya se encuentra registrado en el sistema";
+            }
+            else if(Player::where('emailGame', $request->emailGame)->first())
+            {
+                $status = true;
+                $errorMsg = "Correo Electrónico del Axie infinity ya se encuentra registrado en el sistema!";
+            }
+        }else
+        {
+            if(Player::where('wallet', "!=", str_replace("ronin:", "", $request->wallet))->where('user',  $request->user)->first())
+            {
+                $status = true;
+                $errorMsg = "El usuario ya e encuentra registrado en el sistema";
+            }else if(Player::where('wallet', "!=", str_replace("ronin:", "", $request->wallet))->where('email', $request->email)->first())
+            {
+                $status = true;
+                $errorMsg = "Correo Electrónico del jugador ya se encuentra registrado en el sistema";
+            }
+            else if(Player::where('wallet', "!=", str_replace("ronin:", "", $request->wallet))->where('emailGame', $request->emailGame)->first())
+            {
+                $status = true;
+                $errorMsg = "Correo Electrónico del Axie infinity ya se encuentra registrado en el sistema!";
+            }
+        }
         
-        if(Player::where('user',  $request->user)->first())
-        {
-            $status = true;
-            $errorMsg = "El usuario ya e encuentra registrado en el sistema";
-        }else if(Player::where('wallet',  str_replace("ronin:","", $request->wallet))->first())
-        {
-            $status = true;
-            $errorMsg = "Billetera ingresado ya se encuentra registrado en el sistema";
-        }
-        else if(Player::where('email', $request->email)->first())
-        {
-            $status = true;
-            $errorMsg = "Correo Electrónico del jugador ya se encuentra registrado en el sistema";
-        }
-        else if(Player::where('emailGame', $request->emailGame)->first())
-        {
-            $status = true;
-            $errorMsg = "Correo Electrónico del Axie infinity ya se encuentra registrado en el sistema!";
-        }
 
-        if($status && !$statusApi){
+        if($status && empty($request->statusApi)){
             Session::flash('message', $errorMsg);
             return Redirect::back();
-        }else if($status && $statusApi){
+        }else if($status && $request->statusApi == 'true'){
             return response()->json(['statusCode' => 400, 'message' => $errorMsg]);
         }
 
-
-        $file = $request->file('codeQr');
+        if(empty($request->statusApi))
+            $file = $request->file('codeQr');
+        else
+            $file = base64_decode($request->image);
 
         if(empty($request->playerSelect))
         {
@@ -154,7 +208,7 @@ class AdminController extends Controller
             \Storage::disk('public')->delete($request->urlPrevius);
         }
         
-        if(!empty($file) && !$statusApi){
+        if(!empty($file) && empty($request->statusApi)){
 
             $urlCodeQr = 'players/'.$player->id.'/codeQr-'.Carbon::now()->format('d-m-Y_H-i-s').'.jpg';
             \Storage::disk('public')->put($urlCodeQr, file_get_contents($request->file('codeQr'))); 
@@ -162,11 +216,10 @@ class AdminController extends Controller
             $player->urlCodeQr = $urlCodeQr;
             $player->save();
 
-        }else if(!empty($file) && $statusApi) {
+        }else if(!empty($file) && !empty($request->statusApi)) {
 
             $urlCodeQr = 'players/'.$player->id.'/codeQr-'.Carbon::now()->format('d-m-Y_H-i-s').'.jpg';
-            $realImage = base64_decode($request->image);
-            \Storage::disk('public')->put($urlCodeQr, $realImage); 
+            \Storage::disk('public')->put($urlCodeQr, $file); 
 
             $player->urlCodeQr = $urlCodeQr;
             $player->save();
@@ -178,7 +231,7 @@ class AdminController extends Controller
             new NewPlayer($player, $request->passwordGame)
         );  
 
-        if($statusApi)
+        if($request->statusApi == 'true')
             return response()->json(['statusCode' => 201, 'message' => "saved correctly! "]);
         else
             return redirect()->route('admin.listPlayers');

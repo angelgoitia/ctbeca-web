@@ -116,7 +116,7 @@
         var dayTotalSlp=[];
 
         $.each(listDay, function(i, item) {
-            date.push(item.dia);
+            date.push(item.day);
             dayTotalSlp.push(item.totalSlp);
         });
 

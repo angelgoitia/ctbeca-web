@@ -93,6 +93,7 @@
                             </div>
                             @if($playerSelect)
                                 <input type="hidden" name="urlPrevius" value="{{$playerSelect->urlCodeQr}}">
+                                <input type="hidden" name="playerSelect" value="{{$playerSelect}}">
                             @endif
                             <div>
                                 <span class="btn btn-raised btn-round btn-default btn-file">

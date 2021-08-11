@@ -58,7 +58,7 @@ class DailySlp extends Command
             curl_close($ch); 
 
             if($resultApi && isset($resultApi['total_slp'])){
-                $dailyYesterday = empty($player->totalSLP)? 0 : $player->totalSLP[0]->total;
+                $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
                 $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
                 
                 TotalSlp::updateOrCreate(

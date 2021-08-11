@@ -69,7 +69,7 @@
 
             $('#table_id').DataTable({
                 "scrollX": true,
-                order: [[ 5, "asc" ]],
+                order: [[ 1, "asc" ]],
                 language: {
                     "decimal": "",
                     "emptyTable": "No hay información",
