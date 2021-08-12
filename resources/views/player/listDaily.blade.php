@@ -72,77 +72,25 @@
             </div>
         </div>
         <div class="tableShow">
-            <table class="table table-rotate">
+            <table id="table_id" class="table table-bordered display" style="width:100%;">
                 <thead>
-                    <tr>
-                        <th scope="col" class="table-title addPadding">Fecha</th>
-                        @foreach($playersAll as $player)
-                            <th scope="col" class="notBorder"><div class="outerDiv" ><div class="innerDiv">{{$player->name}}</div></div></th>
-                        @endforeach
+                    <tr class="table-title">
+                        <th scope="col">Fecha</th>
+                        <th>Total</th>
+                        <th>Diaria</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if($orderBy == "ASC")
-                        @while($writeDate <= $endDate)
+                    @foreach($player->totalSLP as $slp)
                         <tr>
-                            <th>{{$writeDate}}</th>
-                            @foreach($playersAll as $player)
-                                @php
-                                    $status = false;
-                                    foreach($player->totalSlp as $item)
-                                    {
-                                        if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        {
-                                            echo "<td>".$item->total." SLP</td>";
-                                            $status = true;
-                                        }
-                                    }
-                                @endphp
-
-                                @if(!$status)
-                                    <td>0 SLP</td>
-                                @endif
-
-                            @endforeach
-                            
-                            @php
-                                $writeDate = Carbon::parse($writeDate)->addDay()->format('Y-m-d');
-                            @endphp
+                            <th>{{$slp->date}}</th>
+                            <th>{{$slp->total}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
+                            <th>{{$slp->daily}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
                         </tr>
-                        @endWhile
-                    @else
-                        @while($writeDate >= $startDate)
-                        <tr>
-                            <th>{{$writeDate}}</th>
-                            @foreach($playersAll as $player)
-                                @php
-                                    $status = false;
-                                    foreach($player->totalSlp as $item)
-                                    {
-                                        if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        {
-                                            echo "<td>".$item->total." SLP</td>";
-                                            $status = true;
-                                        }
-                                    }
-                                @endphp
-
-                                @if(!$status)
-                                    <td>0 SLP</td>
-                                @endif
-
-                            @endforeach
-                            
-                            @php
-                                $writeDate = Carbon::parse($writeDate)->subDays()->format('Y-m-d');
-                            @endphp
-                        </tr>
-                        @endWhile
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
         </div>
-        <div id="showPlayer"></div>
     </div>
     @include('admin.bookshopBottom')
     <script> 
@@ -150,6 +98,31 @@
         var statusMenu = "{{$statusMenu}}";
         
         $(document).ready( function () {
+
+            $('#table_id').DataTable({
+                "scrollX": true,
+                order: [[ 0, "asc" ]],
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Becados",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Becados",
+                    "infoFiltered": "(Filtrado de _MAX_ total Becados)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Becados",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
 
             $('#datepicker-admin').datepicker({
                 orientation: "bottom auto",

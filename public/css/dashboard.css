@@ -275,16 +275,26 @@ table .table-rotate td {
     padding: 50px !important;
 }
 
-.modal-body .title {
+.title {
     height: 40px;
     border-radius: 60px !important;
     background-color: #00cc5f !important;
     border: 2px solid #00cc5f !important;
     color: white !important;
+    margin-top: 10px;
     margin-bottom: 10px !important;
     padding-top: 7px;
+    text-align: center !important;
 }
 
-.modal-body .title strong {
+.title strong {
     color: white !important;
+}
+
+.dataProfile{
+    margin-top: 90px !important;
+}
+
+.dataProfile img:first {
+    text-align: center;
 }

@@ -59,8 +59,8 @@ class AdminController extends Controller
         $startWeek = Carbon::now()->subDays(6)->format('Y-m-d');
 
         $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $now) {
-            $q->whereDate('created_at', ">=",$startDate)
-                ->whereDate('created_at', "<=",$now); 
+            $q->whereDate('date', ">=",$startDate)
+                ->whereDate('date', "<=",$now); 
         }])->get();
 
         foreach($playersAll as $player){
@@ -112,6 +112,12 @@ class AdminController extends Controller
 
     public function listPlayers(Request $request)
     {  
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('admin.login'));
+        }elseif (Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('player.dashboard'));
+        }
+
         $playersAll= Player::orderBy("name","asc")->get();
         $playerSelect = array();
 
@@ -306,6 +312,12 @@ class AdminController extends Controller
 
     public function showPlayer(Request $request)
     {
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('admin.login'));
+        }elseif (Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('player.dashboard'));
+        }
+
         $player = Player::whereId($request->id)->with('animals')->first();
 
         $returnHTML=view('admin.modal.detailsPlayer', compact('player'))->render();
@@ -322,21 +334,30 @@ class AdminController extends Controller
 
     public function listDaily(Request $request)
     {  
-        $startDate = Carbon::now()->setDay(1)->subMonth(4)->format('Y-m-d');
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('admin.login'));
+        }elseif (Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('player.dashboard'));
+        }
+
+        $orderBy = "ASC";
+        $startDate = Carbon::now()->setDay(1)->subMonth(1)->format('Y-m-d');
         $endDate = Carbon::now()->format('Y-m-d');
 
         if($request->all()){
             $startDate=Carbon::createFromFormat('d/m/Y', $request->startDate)->format('Y-m-d');
             $endDate=Carbon::createFromFormat('d/m/Y', $request->endDate)->format('Y-m-d');
+            $orderBy = $request->orderBy;
         }
 
         $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $endDate) {
-            $q->whereDate('created_at', ">=",$startDate)
-                ->whereDate('created_at', "<=",$endDate); 
+            $q->whereDate('date', ">=",$startDate)
+                ->whereDate('date', "<=",$endDate);
         }])->get();
 
+
         $statusMenu = "gameHistory";
-        return view('admin.listDaily', compact('statusMenu', 'startDate', 'endDate', 'playersAll'));
+        return view('admin.listDaily', compact('statusMenu', 'startDate', 'endDate', 'playersAll', 'orderBy'));
     }
 
 

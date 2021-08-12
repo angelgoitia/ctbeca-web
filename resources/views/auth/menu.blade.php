@@ -44,8 +44,14 @@
                 <p>Inicio</p>
               </a>
             </li>
+            <li class="nav-item" id="nav-profile">
+              <a class="nav-link" href="{{route('player.profile')}}">
+                <i class="material-icons">person</i>
+                <p>Perfil</p>
+              </a>
+            </li>
             <li class="nav-item" id="nav-gameHistory">
-              <a class="nav-link" href="#">
+              <a class="nav-link" href="{{route('player.listDaily')}}">
                 <i class="material-icons">description</i>
                 <p>Historial Axie Infinity</p>
               </a>
