@@ -36,8 +36,8 @@
                 @foreach($player->animals as $axie)
                     <div class="card mb-3 mx-auto" style="max-width: 400px;">
                         <div class="row g-0">
-                            <div class="col-md-5">
-                            <img src="{{$axie->image}}" class="img-fluid rounded-start">
+                            <div class="col-md-5" style="background-color: #242734;">
+                                <img src="{{$axie->image}}" class="img-fluid rounded-start">
                             </div>
                             <div class="col">
                             <div class="card-body">

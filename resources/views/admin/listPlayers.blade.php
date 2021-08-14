@@ -17,7 +17,7 @@
       @include('auth.navbar')
         <div class="row buttonCreatePlayers">
             <div class="col">
-                <button type='button' class="btn btn-bottom" onclick="showPlayer(0)"><i class="material-icons">edit</i> Crear Becados</button>
+                <button type='button' class="btn btn-bottom" onclick="editPlayer(0)"><i class="material-icons">edit</i> Crear Becados</button>
             </div>
         </div>
         <div class="tableShow">

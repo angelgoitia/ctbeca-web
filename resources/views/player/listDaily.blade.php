@@ -23,7 +23,7 @@
                         Filtro:
                     </div>
                     <div class="card-body has-success" style="margin:15px;">
-                        <form id="search-form" class="contact-form" method='POST' action="{{route('admin.listDaily')}}">   
+                        <form id="search-form" class="contact-form" method='POST' action="{{route('player.listDaily')}}">   
                             @csrf
                             <div class="mb-3 row">
                                 <label class="col-sm-2 col-form-label">Rango de Fecha</label>
@@ -101,7 +101,7 @@
 
             $('#table_id').DataTable({
                 "scrollX": true,
-                order: [[ 0, "asc" ]],
+                "ordering": false,
                 language: {
                     "decimal": "",
                     "emptyTable": "No hay información",

@@ -17,7 +17,7 @@
         <div class="row justify-content-center align-items-center minh-10 dataProfile">
             <div class="col-6" style="text-align: center;">
                 <div class="title"><label><strong>Datos Personales</strong></label></div>
-                    <div style="text-align: left;">
+                    <div style="text-align: left; padding-left: 40px;">
                         <label><strong>Nombre : </strong>{{$player->name}}</label> <br> 
                         <label><strong>Correo Electrónico: </strong>{{$player->email}}</label> <br> 
                         <label><strong>Teléfono: </strong>{{$player->phone}}</label> <br> 
@@ -28,7 +28,7 @@
                     <div class="title"><label><strong>Acceso Axies Infinity</strong></label></div>
                     <img src="{{asset('storage/'.$player->urlCodeQr)}}" class="rounded float-start" width="150px" height="150px">
 
-                    <div style="text-align: left;">
+                    <div style="text-align: left; padding-left: 40px;">
                         <label><strong>Usuario : </strong>{{$player->user}}</label> <br> 
                         <label><strong>Correo Electrónico: </strong>{{$player->emailGame}}</label> <br> 
                         <label><strong>Billetera: </strong>{{$player->wallet}}</label> <br> 
@@ -38,8 +38,8 @@
                     @foreach($player->animals as $axie)
                         <div class="card mb-3 mx-auto" style="max-width: 400px;">
                             <div class="row g-0">
-                                <div class="col-md-5">
-                                <img src="{{$axie->image}}" class="img-fluid rounded-start">
+                                <div class="col-md-5" style="background-color: #242734;">
+                                    <img src="{{$axie->image}}" class="img-fluid rounded-start">
                                 </div>
                                 <div class="col">
                                 <div class="card-body">
