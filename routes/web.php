@@ -66,6 +66,9 @@ Route::group(['middleware'=>'admin'], function() {
     Route::post('/admin/becado/edit', 'AdminController@editPlayer')->name('admin.editPlayer');
     Route::post('/admin/historial/juego', 'AdminController@listDaily')->name('admin.listDaily');
     Route::get('/admin/historial/juego', 'AdminController@listDaily')->name('admin.listDaily');
+    Route::get('admin/nuevo/slp', 'AdminController@newSLP')->name('admin.newSLP');
+    Route::post('admin/nuevo/slp', 'AdminController@formSLP')->name('admin.formSLP');
+    Route::post('admin/verify/slp', 'AdminController@verifySLP')->name('admin.verifySLP');
     
-    // Route::get('/admin/api', 'AdminController@apiSLP')->name('admin.apiSLP');
+    Route::get('/admin/api', 'AdminController@apiSLP')->name('admin.apiSLP');
 });

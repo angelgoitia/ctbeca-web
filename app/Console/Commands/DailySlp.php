@@ -67,7 +67,6 @@ class DailySlp extends Command
                         'date'          => Carbon::now()->format('Y-m-d'),
                     ],
                     [
-                        'player_id' => $player->id,
                         'total'     => intval($resultApi['total_slp']),
                         'daily'     => $totaldaily,
                     ]

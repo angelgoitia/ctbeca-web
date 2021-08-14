@@ -71,6 +71,11 @@
                 </div>
             </div>
         </div>
+        <div class="row btn-newSLP">
+            <div class="col">
+                <button type='button' class="btn btn-bottom" onclick="newSlp()"><i class="material-icons">edit</i> Crear Nueva control</button>
+            </div>
+        </div>
         <div class="tableShow">
             <table class="table table-rotate">
                 <thead>
@@ -87,20 +92,21 @@
                         <tr>
                             <th>{{$writeDate}}</th>
                             @foreach($playersAll as $player)
-                                @php
-                                    $status = false;
-                                    foreach($player->totalSlp as $item)
-                                    {
-                                        if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        {
-                                            echo "<td>".$item->total." SLP</td>";
-                                            $status = true;
-                                        }
-                                    }
+                                @php 
+                                    $status = false; 
                                 @endphp
+                                
+                                @foreach($player->totalSlp as $item)
+                                    @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
+                                        <td>{{$item->daily}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
+                                        @php 
+                                            $status = true; 
+                                        @endphp
+                                    @endif
+                                @endforeach
 
                                 @if(!$status)
-                                    <td>0 SLP</td>
+                                    <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
                                 @endif
 
                             @endforeach
@@ -117,18 +123,19 @@
                             @foreach($playersAll as $player)
                                 @php
                                     $status = false;
-                                    foreach($player->totalSlp as $item)
-                                    {
-                                        if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        {
-                                            echo "<td>".$item->total." SLP</td>";
-                                            $status = true;
-                                        }
-                                    }
                                 @endphp
+                                
+                                @foreach($player->totalSlp as $item)
+                                    @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
+                                        <td>{{$item->daily}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
+                                        @php
+                                            $status = true;
+                                        @endphp
+                                    @endif
+                                @endforeach
 
                                 @if(!$status)
-                                    <td>0 SLP</td>
+                                    <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
                                 @endif
 
                             @endforeach
@@ -142,7 +149,7 @@
                 </tbody>
             </table>
         </div>
-        <div id="showPlayer"></div>
+        <div id="newFormSLP"></div>
     </div>
     @include('admin.bookshopBottom')
     <script> 
@@ -154,12 +161,30 @@
             $('#datepicker-admin').datepicker({
                 orientation: "bottom auto",
                 language: "es",
+                endDate: new Date(),
+                language: "es",
                 autoclose: true,
                 todayHighlight: true
             });
 
         });
         $(".main-panel").perfectScrollbar('update');
+
+        function newSlp()
+        {
+            $.ajax({
+                url: "{{route('admin.newSLP')}}", 
+                data: {"_token": "{{ csrf_token() }}",},
+                type: "GET",
+            }).done(function(data){
+                $('#newFormSLP').html(data.html);
+                $('#slpModal').modal('show'); 
+            }).fail(function(result){
+                alertify.error('Sin Conexión, intentalo de nuevo mas tardes!');
+                $('#slpModal').modal('hide'); 
+                $('#newFormSLP').html();
+            });
+        }
     </script>
 </body>
 </html>

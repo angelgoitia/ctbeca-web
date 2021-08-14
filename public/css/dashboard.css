@@ -298,3 +298,8 @@ table .table-rotate td {
 .dataProfile img:first {
     text-align: center;
 }
+
+.btn-newSLP {
+    text-align: right !important;
+    padding-right: 50px !important;
+}

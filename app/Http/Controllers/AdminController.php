@@ -312,12 +312,6 @@ class AdminController extends Controller
 
     public function showPlayer(Request $request)
     {
-        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
-            return redirect(route('admin.login'));
-        }elseif (Auth::guard('web')->check() && !Auth::guard('admin')->check()){
-            return redirect(route('player.dashboard'));
-        }
-
         $player = Player::whereId($request->id)->with('animals')->first();
 
         $returnHTML=view('admin.modal.detailsPlayer', compact('player'))->render();
@@ -361,9 +355,65 @@ class AdminController extends Controller
     }
 
 
+    public function newSLP(Request $request)
+    {
+        $players = Player::all();
+
+        $returnHTML=view('admin.modal.newSlp', compact('players'))->render();
+        return response()->json(array('html'=>$returnHTML));
+    }
+
+    public function verifySLP(Request $request)
+    {
+        // if date is used
+        //$date = Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
+
+        // if date with carbon is used
+        $date = $request->date;
+
+        $player = Player::whereId($request->id)->with(['totalSLP' => function($q) use($date) {
+            $q->whereDate('date', $date);
+        }])->first();
+
+        if(count($player->totalSLP) == 0 && $request->total >0)
+            return response()->json(['statusCode' => 201, 'statusTotal' => true]);
+        else if(count($player->totalSLP) == 0 && $request->total <0)
+            return response()->json(['statusCode' => 201, 'statusTotal' => false]);
+        else
+            return response()->json(['statusCode' => 401,]);
+    }
+
+    public function formSLP(Request $request)
+    {
+        // if date is used
+        //$date = Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
+
+        // if date with carbon is used
+        $date = $request->date;
+
+        $player = Player::whereId($request->playerId)->with('lastSLP')->first();
+        $totaldaily = $player->lastSLP->total + intval($request->total);
+
+        TotalSlp::updateOrCreate(
+            [
+                'player_id'     => $request->playerId,
+                'date'          => $date,
+                'total'     => $totaldaily,
+                'daily'     => intval($request->total),
+            ]
+        );
+
+        return redirect()->route('admin.listDaily');
+    }
+
     public function apiSLP(){
-        $player = Player::whereId(1)->with('animals')->first();
-        dd($player->animals);
+        $date = Carbon::createFromFormat('d/m/Y', '12/8/2021')->format('Y-m-d');
+
+        $player = Player::whereId(3)->with(['totalSLP' => function($q) use($date) {
+            $q->whereDate('date', $date);
+        }])->first();
+
+        dd(count($player->totalSLP) == 0);
     }
 
 }
