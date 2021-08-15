@@ -58,8 +58,8 @@ class AdminController extends Controller
         $yesteday = Carbon::now()->subDays(1)->format('Y-m-d');
         $startWeek = Carbon::now()->subDays(6)->format('Y-m-d');
 
-        $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $now) {
-            $q->whereDate('date', ">=",$startDate)
+        $playersAll = Player::with(['totalSLP' => function($q) use($startWeek, $now) {
+            $q->whereDate('date', ">=",$startWeek)
                 ->whereDate('date', "<=",$now); 
         }])->get();
 

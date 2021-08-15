@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Session;
 use App\Animal;
 use App\Player;
 use App\TotalSlp;
@@ -15,8 +16,8 @@ class PlayerController extends Controller
     public function login(Request $request)
     {
 
-        $user = Player::where("wallet",$request->wallet)->first();
-        if($user->status != 0){
+        $user = Player::where("wallet", str_replace("ronin:", "", $request->wallet))->first();
+        if($user){
             Auth::guard('web')->logout();
             $request->session()->flush();
         }else{
