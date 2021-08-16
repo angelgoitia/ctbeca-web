@@ -57,23 +57,38 @@ class DailySlp extends Command
             $resultApi = json_decode(curl_exec($ch), true);
             curl_close($ch); 
 
-            if($resultApi && isset($resultApi['total_slp'])){
-                $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
-                $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
-                
-                TotalSlp::updateOrCreate(
+            $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
+            $now = Carbon::now()->format('Y-m-d');
+
+            if($resultApi && isset($resultApi['total_slp']) && $now == $last_claim){
+
+                $totaldaily = intval($resultApi['total_slp']) ;
+                $totalSlp = TotalSlp::updateOrCreate(
                     [
                         'player_id'     => $player->id,
-                        'date'          => Carbon::now()->format('Y-m-d'),
+                        'date'          => $now,
+                    ],
+                    [
+                        'total'     => $totaldaily,
+                        'daily'     => $totaldaily,
+                    ]
+                );
+                $status++;
+            }else if($resultApi && isset($resultApi['total_slp'])){
+                $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
+                $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
+                $totalSlp = TotalSlp::updateOrCreate(
+                    [
+                        'player_id'     => $player->id,
+                        'date'          => $now,
                     ],
                     [
                         'total'     => intval($resultApi['total_slp']),
                         'daily'     => $totaldaily,
                     ]
                 );
-
                 $status++;
-            }
+            } 
 
             app('App\Http\Controllers\AdminController')->getUpdateAnimal($player->id, $player->wallet);
             
