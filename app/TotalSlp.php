@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TotalSlp extends Model
 {
     protected $fillable = [
-        'id', 'player_id', 'total', 'daily', 'created_at', 'date'
+        'id', 'player_id', 'total', 'daily', 'created_at', 'date', 'totalPlayer'
     ];
 
     public function player()

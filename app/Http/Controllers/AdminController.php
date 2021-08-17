@@ -407,13 +407,18 @@ class AdminController extends Controller
     }
 
     public function apiSLP(){
-        $date = Carbon::createFromFormat('d/m/Y', '12/8/2021')->format('Y-m-d');
+        $listTotal = TotalSLP::all();
 
-        $player = Player::whereId(3)->with(['totalSLP' => function($q) use($date) {
-            $q->whereDate('date', $date);
-        }])->first();
+        foreach($listTotal as $item){
+            if($item->daily <= 75)
+                $item->totalPlayer = $item->daily - ($item->daily * 0.15);
+            else 
+                $item->totalPlayer = $item->daily - ($item->daily * 0.2);
 
-        dd(count($player->totalSLP) == 0);
+            $item->save();
+        }
+
+        dd("completado");
     }
 
 }

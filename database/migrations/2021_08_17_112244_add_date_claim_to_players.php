@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddUserToPlayersTable extends Migration
+class AddDateClaimToPlayers extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddUserToPlayersTable extends Migration
     public function up()
     {
         Schema::table('players', function (Blueprint $table) {
-            $table->string('user',20)->nullable();
+            $table->string('dateClaim',15)->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddUserToPlayersTable extends Migration
     public function down()
     {
         Schema::table('players', function (Blueprint $table) {
-            $table->dropColumn('user');
+            $table->dropColumn('dateClaim');
         });
     }
 }

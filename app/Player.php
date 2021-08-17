@@ -19,7 +19,7 @@ class Player extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'user', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr'
+        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr', 'dateClaim'
     ];
 
     protected $hidden = [
@@ -39,5 +39,10 @@ class Player extends Authenticatable
     public function animals()
     {
         return $this->hasMany('App\Animal');
+    }
+
+    public function claims()
+    {
+        return $this->hasMany('App\Claim');
     }
 }

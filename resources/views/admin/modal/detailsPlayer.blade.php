@@ -27,7 +27,6 @@
                 <img src="{{asset('storage/'.$player->urlCodeQr)}}" class="rounded float-start" width="150px" height="150px">
 
                 <div style="text-align: left;">
-                    <label><strong>Usuario : </strong>{{$player->user}}</label> <br> 
                     <label><strong>Correo Electrónico: </strong>{{$player->emailGame}}</label> <br> 
                     <label><strong>Billetera: </strong>{{$player->wallet}}</label> <br> 
                 </div>
@@ -36,7 +35,7 @@
                 @foreach($player->animals as $axie)
                     <div class="card mb-3 mx-auto" style="max-width: 400px;">
                         <div class="row g-0">
-                            <div class="col-md-5" style="background-color: #242734;">
+                            <div class="col-md-5" style="background-color: white;">
                                 <img src="{{$axie->image}}" class="img-fluid rounded-start">
                             </div>
                             <div class="col">

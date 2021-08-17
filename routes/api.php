@@ -5,8 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::get('loginAdmin', 'AuthController@loginAdmin');
-    Route::get('loginPlayer', 'AuthController@loginPlayer');
+    Route::get('login', 'AuthController@login');
   
     Route::group(['middleware' => 'auth:api'], function() {
         Route::post('logout', 'AuthController@logout');

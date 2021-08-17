@@ -11,75 +11,60 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function loginAdmin(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email'       => 'required|string|email',
             'password'    => 'required|string',
-            'remember_me' => 'boolean',
         ]);
 
         $credentials = request(['email', 'password']);
 
         $user = User::where("email", request('email'))->first();
+        $player = Player::where("emailGame", request('email'))->with('totalSLP')->with('animals')->first();
 
-        if (!$user || !Hash::check(request('password'), $user->password)) {
+        if (!(!$user || !Hash::check(request('password'), $user->password)) xor (!$player || !Hash::check(request('password'), $player->passwordGame))) {
             return response()->json([
                 'statusCode' => 401,
                 'message' => 'Unauthorized',
             ], 401);
         } 
 
-        $tokenResult = $user->createToken('Personal Access Token');
+        if($user)
+            $tokenResult = $user->createToken('Personal Access Token');
+        else
+            $tokenResult = $player->createToken('Personal Access Token');
 
         $token = $tokenResult->token;
         $token->expires_at = Carbon::now()->addYear(5);
         $token->save();
 
-        $players = Player::with('totalSLP')->with('animals')->get();
+        if($user){
+            $players = Player::with('totalSLP')->with('animals')->get();
 
-        return response()->json([
-            'statusCode' => 201,
-            'type'         => 0,
-            'access_token' => $tokenResult->accessToken,
-            'token_type'   => 'Bearer',
-            'expires_at'   => Carbon::parse(
-                $tokenResult->token->expires_at)
-                    ->toDateTimeString(),
-            'players'       => $players,
-            
-        ]);
-    }
-
-    public function loginPlayer(Request $request)
-    {
-        $request->validate([
-            'wallet'       => 'required|string|',
-        ]);
-
-        $credentials = request(['wallet']);
-        $player = Player::where("wallet", request('wallet'))->with('totalSLP')->with('animals')->first();
-
-        if (!$player) {
             return response()->json([
-                'message' => 'Unauthorized'], 401);
+                'statusCode' => 201,
+                'type'         => 0,
+                'access_token' => $tokenResult->accessToken,
+                'token_type'   => 'Bearer',
+                'expires_at'   => Carbon::parse(
+                    $tokenResult->token->expires_at)
+                        ->toDateTimeString(),
+                'players'       => $players,
+                
+            ]);
+        }else{
+            return response()->json([
+                'statusCode' => 201,
+                'type'         => 1,
+                'access_token' => $tokenResult->accessToken,
+                'token_type'   => 'Bearer',
+                'expires_at'   => Carbon::parse(
+                    $token->expires_at)
+                        ->toDateTimeString(),
+                'player'       => $player,
+            ]);
         }
-
-        $tokenResult = $player->createToken('Personal Access Token');
-        $token = $tokenResult->token;
-        $token->expires_at = Carbon::now()->addYear(5);
-        $token->save();
-
-        return response()->json([
-            'statusCode' => 201,
-            'type'         => 1,
-            'access_token' => $tokenResult->accessToken,
-            'token_type'   => 'Bearer',
-            'expires_at'   => Carbon::parse(
-                $token->expires_at)
-                    ->toDateTimeString(),
-            'player'       => $player,
-        ]);
     }
 
     public function logout(Request $request)

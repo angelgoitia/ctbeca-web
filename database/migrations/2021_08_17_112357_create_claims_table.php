@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDateToTotalSlpsTable extends Migration
+class CreateClaimsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,15 @@ class AddDateToTotalSlpsTable extends Migration
      */
     public function up()
     {
-        Schema::table('total_slps', function (Blueprint $table) {
+        Schema::create('claims', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('player_id');
+            $table->foreign('player_id')->references('id')->on('players');
             $table->string('date',15)->nullable();
             $table->integer('totalPlayer');
+            $table->integer('totalManager');
+            $table->integer('total');
+            $table->timestamps();
         });
     }
 
@@ -26,9 +32,6 @@ class AddDateToTotalSlpsTable extends Migration
      */
     public function down()
     {
-        Schema::table('total_slps', function (Blueprint $table) {
-            $table->dropColumn('date');
-            $table->dropColumn('totalPlayer');
-        });
+        Schema::dropIfExists('claims');
     }
 }

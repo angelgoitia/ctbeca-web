@@ -40,6 +40,7 @@ class DailySlp extends Command
      */
     public function handle()
     {
+        $listPlayer = array();
         $status = 0;
         $now = Carbon::now()->format('Y-m-d');
         $players = Player::with(['totalSLP' => function($q) use($now) {
@@ -61,34 +62,38 @@ class DailySlp extends Command
             $now = Carbon::now()->format('Y-m-d');
 
             if($resultApi && isset($resultApi['total_slp']) && $now == $last_claim){
-
-                $totaldaily = intval($resultApi['total_slp']) ;
-                $totalSlp = TotalSlp::updateOrCreate(
+                $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
+                $totaldaily = intval($resultApi['last_claim_amount']) - $dailyYesterday;
+                TotalSlp::updateOrCreate(
                     [
                         'player_id'     => $player->id,
                         'date'          => $now,
                     ],
                     [
-                        'total'     => $totaldaily,
-                        'daily'     => $totaldaily,
+                        'total'         => intval($resultApi['total_slp']),
+                        'daily'         => $totaldaily,
+                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2); 
                     ]
                 );
                 $status++;
             }else if($resultApi && isset($resultApi['total_slp'])){
                 $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
                 $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
-                $totalSlp = TotalSlp::updateOrCreate(
+                TotalSlp::updateOrCreate(
                     [
                         'player_id'     => $player->id,
                         'date'          => $now,
                     ],
                     [
-                        'total'     => intval($resultApi['total_slp']),
-                        'daily'     => $totaldaily,
+                        'total'         => intval($resultApi['total_slp']),
+                        'daily'         => $totaldaily,
+                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2); 
                     ]
                 );
                 $status++;
-            } 
+            }else {
+                array_push($listPlayer, $player);
+            }
 
             app('App\Http\Controllers\AdminController')->getUpdateAnimal($player->id, $player->wallet);
             

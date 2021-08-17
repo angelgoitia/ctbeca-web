@@ -77,9 +77,9 @@
                         <label class="col-sm-4 col-form-label">Billetera:</label>
                         <div class="col-sm-6">
                             @if($playerSelect)
-                                <input class="form-control" type="text" name="wallet" autocomplete="off" minlength="20" placeholder="Billetera" value="{{$playerSelect? $playerSelect->wallet : ''}}" autocomplete="off" readonly required>
+                                <input class="form-control" type="text" name="wallet" autocomplete="off" minlength="20" placeholder="Billetera" value="ronin:{{$playerSelect->wallet}}" autocomplete="off" readonly required>
                             @else
-                                <input class="form-control" type="text" name="wallet" autocomplete="off" minlength="20" placeholder="Billetera" value="{{$playerSelect? $playerSelect->wallet : ''}}" autocomplete="off" required>
+                                <input class="form-control" type="text" name="wallet" autocomplete="off" minlength="20" placeholder="Billetera" autocomplete="off" required>
                             @endif
                         </div>
                     </div>
@@ -105,12 +105,6 @@
                                 </span>
                                 <a href="" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i>Eliminar</a>
                             </div>
-                        </div>
-                    </div>
-                    <div class="mb-3 row">
-                        <label class="col-sm-4 col-form-label">Usuario </label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="user" name="user" placeholder="Usuario" value="{{$playerSelect? $playerSelect->user : ''}}" pattern="[A-Za-z0-9_]{5,20}" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
