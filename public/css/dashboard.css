@@ -303,3 +303,7 @@ table .table-rotate td {
     text-align: right !important;
     padding-right: 50px !important;
 }
+
+.referenceHide{
+    display: none !important;
+}

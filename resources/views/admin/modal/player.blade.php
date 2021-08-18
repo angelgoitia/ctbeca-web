@@ -47,10 +47,10 @@
                                     @endif
                                 @endforeach
                             </select>
-                        </label>
+                        </label> 
                         <div class="col-sm-4">
                             <input type="tel" oninput="this.value=this.value.replace(/[^0-9]/g,'');" class="form-control" id="phone" name="phone" minlength="6" maxlength="7" value="{{$playerSelect? substr($playerSelect->phone,5) : ''}}" autocomplete="off" required>
-                        </div>
+                        </div> 
                     </div>
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">Telegram</label>
@@ -66,8 +66,33 @@
                     </div>
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">Referencia</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" id="reference" name="reference" minlength="3" pattern="([a-zA-ZÁÉÍÓÚñáéíóú]{1,}[\s]*)+" value="{{$playerSelect? $playerSelect->reference : ''}}" autocomplete="off" required>
+                        <div class="col-sm-3 .referenceSelect">
+                            <label class="content-select content-select">
+                                <select class="addMargin" name="reference" id="reference" required>
+                                    @if($playerSelect)
+                                        <option value="" disabled>Seleccionar</option>
+                                    @else
+                                        <option value="" disabled selected>Seleccionar</option>
+                                    @endif
+                                    @php $statusReference = true; @endphp
+                                    @foreach($players as $player)
+                                        @if(!empty($playerSelect) && $playerSelect->reference == $player->name)
+                                            @php $statusReference = false; @endphp
+                                            <option value="{{$player->name}}" selected>{{$player->name}}</option> 
+                                        @else
+                                            <option value="{{$player->name}}">{{$player->name}}</option> 
+                                        @endif
+                                    @endforeach
+                                    @if($playerSelect && $statusReference)
+                                        <option value="Otro" selected>Otro</option> 
+                                    @else
+                                        <option value="Otro">Otro</option>
+                                    @endif
+                                </select>
+                            </label> 
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control"  id="referenceOther" name="referenceOther" minlength="3" pattern="([a-zA-ZÁÉÍÓÚñáéíóú]{1,}[\s]*)+" value="{{$playerSelect && $statusReference? $playerSelect->reference : ''}}" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="row justify-content-center align-items-center minh-10">
@@ -136,6 +161,18 @@
 </div>
 
 <script>
+    $(document).ready(function () {
+        var statusReference = $('#reference').val();
+        console.log(statusReference);
+        if(statusReference != "Otro"){
+            $("#referenceOther").prop('required',false);
+            $('#referenceOther').addClass('referenceHide');
+        }else{
+            $("#referenceOther").prop('required',true);
+            $('#referenceOther').removeClass('referenceHide');
+        }
+
+    });
     $(".fileinput-exists").click(function (e) { 
         e.preventDefault();
         $("#codeQr").prop('required',true);
@@ -143,5 +180,17 @@
 
     $(".btn-file").click(function (e) { 
         $("#codeQr").prop('required',true);
+    });
+
+    $("#reference").on('change', function() {
+        selectReference = $(this).val();
+        if(selectReference == "Otro"){
+            $("#referenceOther").prop('required',true);
+            $('#referenceOther').removeClass('referenceHide');
+        }
+        else{
+            $("#referenceOther").prop('required',false);
+            $('#referenceOther').addClass('referenceHide');
+        }
     });
 </script>

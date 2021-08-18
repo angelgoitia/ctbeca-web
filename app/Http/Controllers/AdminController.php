@@ -50,11 +50,18 @@ class AdminController extends Controller
             return redirect(route('player.dashboard'));
         }
 
+        $now = Carbon::now()->format('Y-m-d');
+
+        $players = Player::with(['totalSLP' => function($q) use($now) {
+            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+        }])->get();
+
+        app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
+
         $totalSlpToday = 0;
         $totalSlpYesterday= 0;
         $totalSlpWeek = 0;
         $startDate = Carbon::now()->setDay(1)->subMonth(2)->format('Y-m-d');
-        $now = Carbon::now()->format('Y-m-d');
         $yesteday = Carbon::now()->subDays(1)->format('Y-m-d');
         $startWeek = Carbon::now()->subDays(6)->format('Y-m-d');
 
@@ -132,11 +139,7 @@ class AdminController extends Controller
         $errorMsg;
         if(empty($request->playerSelect))
         {
-            if(Player::where('user',  $request->user)->first())
-            {
-                $status = true;
-                $errorMsg = "El usuario ya e encuentra registrado en el sistema";
-            }else if(Player::where('wallet', str_replace("ronin:","", $request->wallet))->first())
+            if(Player::where('wallet', str_replace("ronin:","", $request->wallet))->first())
             {
                 $status = true;
                 $errorMsg = "Billetera ingresado ya se encuentra registrado en el sistema";
@@ -153,11 +156,7 @@ class AdminController extends Controller
             }
         }else
         {
-            if(Player::where('wallet', "!=", str_replace("ronin:", "", $request->wallet))->where('user',  $request->user)->first())
-            {
-                $status = true;
-                $errorMsg = "El usuario ya e encuentra registrado en el sistema";
-            }else if(Player::where('wallet', "!=", str_replace("ronin:", "", $request->wallet))->where('email', $request->email)->first())
+            if(Player::where('wallet', "!=", str_replace("ronin:", "", $request->wallet))->where('email', $request->email)->first())
             {
                 $status = true;
                 $errorMsg = "Correo Electrónico del jugador ya se encuentra registrado en el sistema";
@@ -177,10 +176,17 @@ class AdminController extends Controller
             return response()->json(['statusCode' => 400, 'message' => $errorMsg]);
         }
 
-        if(empty($request->statusApi))
+        if(empty($request->statusApi)){
+            if($request->reference == "Otro")
+                $reference = $request->referenceOther;
+            else
+                $reference = $request->reference;
+
             $file = $request->file('codeQr');
-        else
+        }else{
+            $reference = $request->reference;
             $file = base64_decode($request->image);
+        }
 
         if(empty($request->playerSelect))
         {
@@ -190,7 +196,7 @@ class AdminController extends Controller
                     'phone'         => $request->digPhone."-".$request->phone,
                     'telegram'      => $request->telegram,
                     'email'         => $request->email,
-                    'reference'     => $request->reference,
+                    'reference'     => $reference,
                     'user'          => $request->user,
                     'emailGame'     => $request->emailGame,
                     'passwordGame'  => bcrypt($request->passwordGame),
@@ -203,7 +209,7 @@ class AdminController extends Controller
             $player->phone         = $request->digPhone."-".$request->phone;
             $player->telegram      = $request->telegram;
             $player->email         = $request->email;
-            $player->reference     = $request->reference;
+            $player->reference     = $reference;
             $player->user          = $request->user;
             $player->emailGame     = $request->emailGame;
             $player->passwordGame  = bcrypt($request->passwordGame);
@@ -322,7 +328,9 @@ class AdminController extends Controller
     {
         $playerSelect = Player::whereId($request->id)->first();
 
-        $returnHTML=view('admin.modal.player', compact('playerSelect'))->render();
+        $players = Player::all();
+
+        $returnHTML=view('admin.modal.player', compact('playerSelect', 'players'))->render();
         return response()->json(array('html'=>$returnHTML));
     }
 
