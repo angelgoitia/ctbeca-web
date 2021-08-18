@@ -44,7 +44,7 @@ class DailySlp extends Command
         $status = 0;
         $now = Carbon::now()->format('Y-m-d');
         $players = Player::with(['totalSLP' => function($q) use($now) {
-            $q->where('date', "!=", $now)->orderBy('created_at','DESC'); 
+            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->get();
 
         foreach ($players as $player)
@@ -64,6 +64,10 @@ class DailySlp extends Command
             if($resultApi && isset($resultApi['total_slp']) && $now == $last_claim){
                 $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
                 $totaldaily = intval($resultApi['last_claim_amount']) - $dailyYesterday;
+                
+                $player->dateClaim = $now;
+                $player->save();
+
                 TotalSlp::updateOrCreate(
                     [
                         'player_id'     => $player->id,
@@ -72,7 +76,7 @@ class DailySlp extends Command
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2); 
+                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
                     ]
                 );
                 $status++;
@@ -87,7 +91,7 @@ class DailySlp extends Command
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2); 
+                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
                     ]
                 );
                 $status++;

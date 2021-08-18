@@ -407,7 +407,13 @@ class AdminController extends Controller
     }
 
     public function apiSLP(){
-        $listTotal = TotalSLP::all();
+        $now = Carbon::now()->format('Y-m-d');
+        $player = Player::where('wallet', '256500f59497d6d6ae797d974ef22232479e4ddb')->with(['totalSLP' => function($q) use($now) {
+            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+        }])->first();
+
+        app('App\Http\Controllers\Controller')->updateSlp($player);
+        /* $listTotal = TotalSLP::all();
 
         foreach($listTotal as $item){
             if($item->daily <= 75)
@@ -418,7 +424,7 @@ class AdminController extends Controller
             $item->save();
         }
 
-        dd("completado");
+        dd("completado"); */
     }
 
 }
