@@ -11,5 +11,11 @@ $(document).ready( function () {
         $("#title-navbar").html("Historial del Pago");
     else if(statusMenu == "profile")
         $("#title-navbar").html("Perfil");
+    else if(statusMenu == "rates")
+        $("#title-navbar").html("Tasas");
+    else if(statusMenu == "rate")
+        $("#title-navbar").html("Tasa");
+    else if(statusMenu == "groups")
+        $("#title-navbar").html("Grupos");
 
 });

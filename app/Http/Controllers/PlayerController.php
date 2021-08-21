@@ -38,18 +38,13 @@ class PlayerController extends Controller
         }
 
         $totalSlpToday = 0;
-        $totalSlpYesterday= 0;
-        $totalSlpWeek = 0;
-        $startDate = Carbon::now()->setDay(1)->subMonth(2)->format('Y-m-d');
+        $totalSlpYesterday = 0;
+        $totalSlpUnclaimed = 0;
         $now = Carbon::now()->format('Y-m-d');
-        $yesteday = Carbon::now()->subDays(1)->format('Y-m-d');
-        $startWeek = Carbon::now()->subDays(6)->format('Y-m-d');
+        $yesteday = Carbon::yesterday()->format('Y-m-d');
 
-        $player = Player::whereId(Auth::guard('web')->id())->with(['totalSLP' => function($q) use($startDate, $now) {
-            $q->whereDate('date', ">=",$startDate)
-                ->whereDate('date', "<=",$now); 
-        }])->first();
-
+        $player = Player::whereId(Auth::guard('web')->id())->with("totalSLP")->first();
+        $dateClaim = Carbon::parse($player->dateClaim)->format('Y-m-d');
         foreach($player->totalSLP as $slp){
 
             if($now == Carbon::parse($slp->date)->format('Y-m-d'))
@@ -58,13 +53,14 @@ class PlayerController extends Controller
             if($yesteday == Carbon::parse($slp->date)->format('Y-m-d'))
                 $totalSlpYesterday += $slp-> daily;
 
-            if(Carbon::parse($slp->date)->format('Y-m-d') >= $startWeek && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
-                $totalSlpWeek += $slp-> daily;
+            if(Carbon::parse($slp->date)->format('Y-m-d') >= $dateClaim && Carbon::parse($slp->date)->format('Y-m-d') <= $now){
+                $totalSlpUnclaimed += $slp-> daily;
+                
         }
 
         $statusMenu = "dashboard";
         $idPlayer = 0;
-        return view('player.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpWeek", "statusMenu" , "idPlayer"));
+        return view('player.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpUnclaimed", "statusMenu" , "idPlayer"));
     }
 
     public function dataGraphic(Request $request)
@@ -114,8 +110,13 @@ class PlayerController extends Controller
         }
 
         $orderBy = "ASC";
-        $startDate = Carbon::now()->setDay(1)->subMonth(1)->format('Y-m-d');
-        $endDate = Carbon::now()->format('Y-m-d');
+        $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
+        $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
+
+        if(Carbon::now()->format('d') > 15){
+            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
 
         if($request->all()){
             $startDate=Carbon::createFromFormat('d/m/Y', $request->startDate)->format('Y-m-d');

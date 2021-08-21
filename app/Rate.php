@@ -4,13 +4,13 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Commission extends Model
+class Rate extends Model
 {
     protected $fillable = [
-        'id', 'admin_id', 'lessSlp', 'lessPercentage', 'higherSlp', 'higherPercentage',
+        'id', 'admin_id', 'lessSlp', 'lessPercentage', 'greaterSlp', 'greaterPercentage',
     ];
 
-    public function user()
+    public function admin()
     {
         return $this->belongsTo('App\User', 'admin_id');
     }

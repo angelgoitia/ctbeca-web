@@ -46,7 +46,7 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => 0,
+                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
                     ]
                 );
             else
@@ -58,7 +58,7 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => 0,
+                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
                     ]
                 );
                 

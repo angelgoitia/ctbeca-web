@@ -258,18 +258,11 @@ th:first-child .outerDiv {
     text-align: left;
     color: white;
 }
-    
-table .table-rotate {
-    border-collapse: collapse;
-}
-  
-table .table-rotate td {
-    border: 1px solid black;
+
+.marginTop{
+    margin-top: 15% !important;
 }
 
-.table-rotate {
-    width: 0 !important;
-}
 
 .addPadding{
     padding: 50px !important;

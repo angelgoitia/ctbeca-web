@@ -56,15 +56,6 @@
      
     $(document).ready( function () {
 
-        /* $('#datepicker-SLP').datepicker({
-            orientation: "bottom auto",
-            language: "es",
-            endDate: new Date(),
-            language: "es",
-            autoclose: true,
-            todayHighlight: true
-        }); */
-
         $("#btn-submit-slp").click(function (e) { 
             e.preventDefault();
             if( !($("#playerId").val() >0 ))

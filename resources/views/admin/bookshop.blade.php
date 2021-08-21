@@ -1,6 +1,6 @@
   <!--     Fonts and icons     -->
   <link rel="stylesheet" type="text/css" href="{{ asset('css/dashboard/google-css.css') }}" />
-  <!-- <link rel="stylesheet" href="{{ asset('css/dashboard/font-awesome.min') }}"> -->
+  <link rel="stylesheet" href="{{ asset('css/dashboard/font-awesome.min.css') }}"> 
   <!-- CSS Files -->
   <link href="{{ asset('css/dashboard/material-dashboard.css?v=2.1.2') }}" rel="stylesheet" />
 

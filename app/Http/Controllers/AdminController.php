@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Session;
 use App\Animal;
 use App\Player;
+use App\Rate;
 use App\TotalSlp;
 use Carbon\Carbon;
 use App\Notifications\NewPlayer;
@@ -60,18 +61,16 @@ class AdminController extends Controller
 
         $totalSlpToday = 0;
         $totalSlpYesterday= 0;
-        $totalSlpWeek = 0;
-        $startDate = Carbon::now()->setDay(1)->subMonth(2)->format('Y-m-d');
-        $yesteday = Carbon::now()->subDays(1)->format('Y-m-d');
-        $startWeek = Carbon::now()->subDays(6)->format('Y-m-d');
+        $totalSlpUnclaimed = 0;
+        $totalSlpPlayer = 0;
+        $totalSlpManager = 0;
+        $totalSlpAll = 0;
+        $yesteday = Carbon::yesterday()->format('Y-m-d');
 
-        $playersAll = Player::with(['totalSLP' => function($q) use($startWeek, $now) {
-            $q->whereDate('date', ">=",$startWeek)
-                ->whereDate('date', "<=",$now); 
-        }])->get();
+        $playersAll = Player::with("totalSLP")->get();
 
         foreach($playersAll as $player){
-
+            $dateClaim = Carbon::parse($player->dateClaim)->format('Y-m-d');
             foreach($player->totalSLP as $slp){
 
                 if($now == Carbon::parse($slp->date)->format('Y-m-d'))
@@ -80,15 +79,19 @@ class AdminController extends Controller
                 if($yesteday == Carbon::parse($slp->date)->format('Y-m-d'))
                     $totalSlpYesterday += $slp-> daily;
 
-                if(Carbon::parse($slp->date)->format('Y-m-d') >= $startWeek && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
-                    $totalSlpWeek += $slp-> daily;
+                if(Carbon::parse($slp->date)->format('Y-m-d') >= $dateClaim && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
+                    $totalSlpUnclaimed += $slp-> daily;
+
+                $totalSlpAll += $slp-> daily;
+                $totalSlpPlayer += $slp-> totalPlayer;
+                $totalSlpManager += ($slp-> daily - $slp-> totalPlayer);
             }
  
         }
 
         $statusMenu = "dashboard";
         $idPlayer = 0;
-        return view('admin.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpWeek", "statusMenu" , "idPlayer"));
+        return view('admin.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpUnclaimed", "totalSlpManager", "totalSlpPlayer", "totalSlpAll", "statusMenu" , "idPlayer"));
     }
 
     public function dataGraphic(Request $request)
@@ -97,10 +100,10 @@ class AdminController extends Controller
         $years = Carbon::now()->format('Y');
         $listDay= array();
 
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 17; $i++) {
             $totalSlp = 0;
             $playersAll = Player::with(['totalSLP' => function($q) use($years, $month, $i) {
-                $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(6-$i)->format('d'))."%"); 
+                $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(16-$i)->format('d'))."%"); 
             }])->get();
 
             foreach($playersAll as $player){
@@ -109,7 +112,7 @@ class AdminController extends Controller
                 }
             }
 
-            $listDay[$i]['day'] = Carbon::now()->subDay(6-$i)->format('d');
+            $listDay[$i]['day'] = Carbon::now()->subDay(16-$i)->format('d');
             $listDay[$i]['totalSlp'] = $totalSlp;
         }
 
@@ -342,14 +345,38 @@ class AdminController extends Controller
             return redirect(route('player.dashboard'));
         }
 
+
         $orderBy = "ASC";
-        $startDate = Carbon::now()->setDay(1)->subMonth(1)->format('Y-m-d');
-        $endDate = Carbon::now()->format('Y-m-d');
+        $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
+        $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
+        $statusBiweekly = true;
+        $initialDay = 1;
+        $finalDay = 15;
+        $months = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+        $monthDate = Carbon::now()->format('n');
+        $yearDate = Carbon::now()->format('Y');
+
+        if(Carbon::now()->format('d') > 15){
+            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+            $statusBiweekly = false;
+            $initialDay = 16;
+            $finalDay = Carbon::now()->endOfMonth()->format('d');
+        }
 
         if($request->all()){
-            $startDate=Carbon::createFromFormat('d/m/Y', $request->startDate)->format('Y-m-d');
-            $endDate=Carbon::createFromFormat('d/m/Y', $request->endDate)->format('Y-m-d');
-            $orderBy = $request->orderBy;
+            $statusBiweekly = filter_var($request->statusBiweekly, FILTER_VALIDATE_BOOLEAN);
+            $monthDate = $request->monthDate;
+            $yearDate = $request->yearDate;
+
+            if($statusBiweekly){
+                $startDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->format('Y-m-d');
+                $endDate = Carbon::parse($yearDate.'-'.$monthDate.'-15')->format('Y-m-d');
+            }else{
+                $startDate = Carbon::parse($yearDate.'-'.$monthDate.'-16')->format('Y-m-d');
+                $endDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->endOfMonth()->format('Y-m-d');
+            }
+
         }
 
         $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $endDate) {
@@ -359,7 +386,7 @@ class AdminController extends Controller
 
 
         $statusMenu = "gameHistory";
-        return view('admin.listDaily', compact('statusMenu', 'startDate', 'endDate', 'playersAll', 'orderBy'));
+        return view('admin.listDaily', compact('statusMenu', 'startDate', 'endDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
     }
 
 
@@ -414,13 +441,45 @@ class AdminController extends Controller
         return redirect()->route('admin.listDaily');
     }
 
+    public function rates(){
+        $rates = Rate::with("admin")->get();
+        $statusMenu = "rates";
+        return view('admin.listRates', compact('statusMenu', 'rates'));
+    }
+
+    public function rate(){
+        $admin = Auth::guard('admin')->id();
+        $rate = Rate::where('admin_id', $admin)->with("admin")->first();
+
+        $statusMenu = "rate";
+        return view('admin.rate', compact('statusMenu', 'rate'));
+    }
+
+    public function formRate(Request $request){
+        Rate::updateOrCreate(
+            [
+                'admin_id'          => Auth::guard('admin')->id(),
+            ],
+            [
+                'lessSlp'           => $request->lessSlp,
+                'lessPercentage'    => $request->lessPercentage,
+                'greaterSlp'        => $request->greaterSlp,
+                'greaterPercentage' => $request->greaterPercentage,
+            ]
+        );
+
+        return redirect()->route('admin.rate');
+    }
+
     public function apiSLP(){
-        $now = Carbon::now()->format('Y-m-d');
+        
+
+        /* $now = Carbon::now()->format('Y-m-d');
         $player = Player::where('wallet', '256500f59497d6d6ae797d974ef22232479e4ddb')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
 
-        app('App\Http\Controllers\Controller')->updateSlp($player);
+        app('App\Http\Controllers\Controller')->updateSlp($player); */
         /* $listTotal = TotalSLP::all();
 
         foreach($listTotal as $item){

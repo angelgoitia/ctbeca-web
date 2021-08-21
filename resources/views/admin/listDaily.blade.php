@@ -25,35 +25,53 @@
                     <div class="card-body has-success" style="margin:15px;">
                         <form id="search-form" class="contact-form" method='POST' action="{{route('admin.listDaily')}}">   
                             @csrf
+                            @php
+                                use Carbon\Carbon;
+                                $writeDate = $startDate;
+                                $status = false;
+                                $totalUnclaim = 0;
+                                $totalPlayer = 0;
+                                $yearInitial = Carbon::now()->setYear(2021)->format('Y');
+                                $yearFinal = Carbon::now()->setYear(Carbon::now()->format('Y'))->format('Y');
+                            @endphp
+
                             <div class="mb-3 row">
-                                <label class="col-sm-2 col-form-label">Rango de Fecha</label>
-                                @php
-                                    use Carbon\Carbon;
-                                    if($orderBy == "ASC")
-                                        $writeDate = $startDate;
-                                    else
-                                        $writeDate = $endDate;
-                                    $status = false;
-                                @endphp
-                                <div class="col">
-                                    <div class="input-daterange input-group" id="datepicker-admin">
-                                    <input type="text" class="form-control" name="startDate" placeholder="Fecha Inicial" value="{{Carbon::parse(str_replace('/','-',$startDate))->format('d/m/Y')}}" autocomplete="off"/>
-                                        <span class="input-group-addon"> Hasta </span>
-                                        <input type="text" class="form-control" name="endDate" placeholder="Fecha Final" value="{{Carbon::parse(str_replace('/','-',$endDate))->format('d/m/Y')}}" autocomplete="off"/>
-                                    </div>
-                                </div>
+                                <label class="col-sm-2 col-form-label">Fecha</label>
+                                <label class="content-select">
+                                    <select class="addMargin" name="monthDate" id="monthDate">
+                                        @foreach($months as $key => $month)
+                                            @if($key == $monthDate-1)
+                                                <option value="{{$key}}" selected>{{$month}}</option>
+                                            @else
+                                                <option value="{{$key}}">{{$month}}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </label>
+                                <label class="content-select">
+                                    <select class="addMargin" name="yearDate" id="yearDate">
+                                        @while($yearInitial <= $yearFinal)
+                                            @if($yearInitial == $yearDate)
+                                                <option value="{{$yearInitial}}" selected>{{$yearInitial}}</option>
+                                            @else
+                                                <option value="{{$yearInitial}}">{{$yearInitial}}</option>
+                                            @endif
+                                            @php $yearInitial += 1; @endphp
+                                        @endwhile
+                                    </select>
+                                </label>
                             </div>
 
                             <div class="mb-3 row">
-                                <label class="col-sm-2 col-form-label">Orden Fecha</label>
+                                <label class="col-sm-2 col-form-label">Mostrar</label>
                                 <label class="content-select">
-                                    <select class="addMargin" name="orderBy" id="orderBy">
-                                        @if($orderBy == "ASC")
-                                            <option value="ASC" >Ascendiente</option>
-                                            <option value="DESC">Descendiente</option>
+                                    <select class="addMargin" name="statusBiweekly" id="statusBiweekly">
+                                        @if($statusBiweekly)
+                                            <option value="true" selected>Quincenal</option>
+                                            <option value="false">Último</option>
                                         @else
-                                            <option value="ASC" >Ascendiente</option>
-                                            <option value="DESC" selected>Descendiente</option>
+                                            <option value="true" >Quincenal</option>
+                                            <option value="false" selected>Último</option>
                                         @endif
                                     </select>
                                 </label>
@@ -77,59 +95,36 @@
             </div>
         </div>
         <div class="tableShow">
-            <table class="table table-rotate">
+            <table id="table_id" class="table table-bordered display" style="width:100%;">
                 <thead>
-                    <tr>
-                        <th scope="col" class="table-title addPadding">Fecha</th>
-                        @foreach($playersAll as $player)
-                            <th scope="col" class="notBorder"><div class="outerDiv" ><div class="innerDiv">{{$player->name}}</div></div></th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    @if($orderBy == "ASC")
+                    <tr class="table-title">
+                        <th scope="col">Becados</th>
                         @while($writeDate <= $endDate)
-                        <tr>
-                            <th>{{$writeDate}}</th>
-                            @foreach($playersAll as $player)
-                                @php 
-                                    $status = false; 
-                                @endphp
-                                
-                                @foreach($player->totalSlp as $item)
-                                    @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        <td>{{$item->daily}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
-                                        @php 
-                                            $status = true; 
-                                        @endphp
-                                    @endif
-                                @endforeach
-
-                                @if(!$status)
-                                    <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
-                                @endif
-
-                            @endforeach
-                            
+                            <th scope="col">{{Carbon::parse($writeDate)->format('d')}}</th>
                             @php
                                 $writeDate = Carbon::parse($writeDate)->addDay()->format('Y-m-d');
                             @endphp
-                        </tr>
                         @endWhile
-                    @else
-                        @while($writeDate >= $startDate)
+                        <th scope="col">Acumulado</th>
+                        <th scope="col">Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $writeDate = $startDate;
+                    @endphp
+                    @foreach($playersAll as $player)
                         <tr>
-                            <th>{{$writeDate}}</th>
-                            @foreach($playersAll as $player)
-                                @php
-                                    $status = false;
-                                @endphp
-                                
+                            <td>{{$player->name}}</td>
+                            @while($writeDate <= $endDate)
+
                                 @foreach($player->totalSlp as $item)
                                     @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
                                         <td>{{$item->daily}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
                                         @php
                                             $status = true;
+                                            $totalUnclaim += $item->daily;
+                                            $totalPlayer += $item->totalPlayer;
                                         @endphp
                                     @endif
                                 @endforeach
@@ -137,17 +132,24 @@
                                 @if(!$status)
                                     <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
                                 @endif
-
-                            @endforeach
-                            
+                                @php
+                                    $writeDate = Carbon::parse($writeDate)->addDay()->format('Y-m-d');
+                                    $status = false;
+                                @endphp
+                            @endwhile
+                            <td>{{$totalUnclaim}}</td>
+                            <td>{{$totalPlayer}}</td>
                             @php
-                                $writeDate = Carbon::parse($writeDate)->subDays()->format('Y-m-d');
+                                $writeDate = $startDate;
+                                $status = false;
+                                $totalUnclaim = 0;
+                                $totalPlayer = 0;
                             @endphp
                         </tr>
-                        @endWhile
-                    @endif
+                    @endforeach
                 </tbody>
             </table>
+
         </div>
         <div id="newFormSLP"></div>
     </div>
@@ -157,6 +159,31 @@
         var statusMenu = "{{$statusMenu}}";
         
         $(document).ready( function () {
+
+            $('#table_id').DataTable({
+                "scrollX": true,
+                "ordering": false,
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Becados",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Becados",
+                    "infoFiltered": "(Filtrado de _MAX_ total Becados)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "Mostrar _MENU_ Becados",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                },
+            });
 
             $('#datepicker-admin').datepicker({
                 orientation: "bottom auto",

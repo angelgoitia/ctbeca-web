@@ -24,8 +24,8 @@
                   <div class="card-icon">
                     <img src="{{ asset('images/SLP.png') }}" width="50px">
                   </div>
-                  <p class="card-category">Total de SLP</p>
-                  <h3 class="card-title">{{$totalSlpToday}}</h3>
+                  <p class="card-category">Total</p>
+                  <h3 class="card-title">{{$totalSlpToday}} SLP</h3>
                 </div>
                 <div class="card-footer">
                     <div class="stats">
@@ -40,8 +40,8 @@
                   <div class="card-icon">
                     <img src="{{ asset('images/SLP.png') }}" width="50px">
                   </div>
-                  <p class="card-category">Total de SLP</p>
-                  <h3 class="card-title">{{$totalSlpYesterday}}</h3>
+                  <p class="card-category">Total</p>
+                  <h3 class="card-title">{{$totalSlpYesterday}} SLP</h3>
                 </div>
                 <div class="card-footer">
                   <div class="stats">
@@ -56,12 +56,60 @@
                   <div class="card-icon">
                     <img src="{{ asset('images/SLP.png') }}" width="50px">
                   </div>
-                  <p class="card-category">Total de SLP</p>
-                  <h3 class="card-title">{{$totalSlpWeek}}</h3>
+                  <p class="card-category">Total</p>
+                  <h3 class="card-title">{{$totalSlpUnclaimed}} SLP</h3>
                 </div>
                 <div class="card-footer">
                   <div class="stats">
-                    <i class="material-icons">date_range</i> Ultimos 6 Dias
+                    <i class="material-icons">date_range</i> Sin Reclamar
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-7 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-primary card-header-icon">
+                  <div class="card-icon">
+                    <img src="{{ asset('images/SLP.png') }}" width="50px">
+                  </div>
+                  <p class="card-category">Total Manager</p>
+                  <h3 class="card-title">{{$totalSlpManager}} SLP</h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">date_range</i> Global
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-7 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-success card-header-icon">
+                  <div class="card-icon">
+                    <img src="{{ asset('images/SLP.png') }}" width="50px">
+                  </div>
+                  <p class="card-category">Total Becado</p>
+                  <h3 class="card-title">{{$totalSlpPlayer}} SLP</h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">date_range</i> Global
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-7 col-sm-6">
+              <div class="card card-stats">
+                <div class="card-header card-header-secondary card-header-icon">
+                  <div class="card-icon">
+                    <img src="{{ asset('images/SLP.png') }}" width="50px">
+                  </div>
+                  <p class="card-category">Total Producidos</p>
+                  <h3 class="card-title">{{$totalSlpAll}} SLP</h3>
+                </div>
+                <div class="card-footer">
+                  <div class="stats">
+                    <i class="material-icons">date_range</i> Global
                   </div>
                 </div>
               </div>
@@ -79,7 +127,7 @@
                 </div>
                 <div class="card-footer">
                   <div class="stats">
-                    <i class="material-icons">access_time</i> Ultimos 6 Dias
+                    <i class="material-icons">access_time</i> Ultimos 15 Dias
                   </div>
                 </div>
               </div>

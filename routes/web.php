@@ -69,6 +69,9 @@ Route::group(['middleware'=>'admin'], function() {
     Route::get('admin/nuevo/slp', 'AdminController@newSLP')->name('admin.newSLP');
     Route::post('admin/nuevo/slp', 'AdminController@formSLP')->name('admin.formSLP');
     Route::post('admin/verify/slp', 'AdminController@verifySLP')->name('admin.verifySLP');
+    Route::get('admin/tasas', 'AdminController@rates')->name('admin.rates');
+    Route::get('admin/tasa', 'AdminController@rate')->name('admin.rate');
+    Route::post('admin/tasa/form', 'AdminController@formRate')->name('admin.formRate');
     
     Route::get('/admin/api', 'AdminController@apiSLP')->name('admin.apiSLP');
 });

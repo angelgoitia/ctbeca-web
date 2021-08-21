@@ -76,16 +76,16 @@
                 <thead>
                     <tr class="table-title">
                         <th scope="col">Fecha</th>
-                        <th>Total</th>
                         <th>Diaria</th>
+                        <th>Acumulado</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($player->totalSLP as $slp)
                         <tr>
                             <th>{{$slp->date}}</th>
-                            <th>{{$slp->total}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
                             <th>{{$slp->daily}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
+                            <th>{{$slp->total}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
                         </tr>
                     @endforeach
                 </tbody>

@@ -30,13 +30,33 @@
                 <p>Historial Axie Infinity</p>
               </a>
             </li>
+            @if(Auth::guard('admin')->id() == 1)
+              <li class="nav-item" id="nav-rates">
+                <a class="nav-link" href="{{route('admin.rates')}}">
+                  <i class="material-icons">attach_money</i>
+                  <p>Tasas</p>
+                </a>
+              </li>
+              <li class="nav-item" id="nav-groups">
+                <a class="nav-link" href="#">
+                  <i class="material-icons">groups</i>
+                  Grupos
+                </a>
+              </li>
+            @else
+            <li class="nav-item" id="nav-rate">
+              <a class="nav-link" href="{{route('admin.rate')}}">
+                <i class="material-icons">attach_money</i>
+                <p>Tasa</p>
+              </a>
+            </li>
+            @endif
             <li class="nav-item" id="nav-deposits">
               <a class="nav-link" href="#">
                 <i class="material-icons">account_balance</i>
-                Depositos
+                Historial Reclamos
               </a>
             </li>
-
           @else
             <li class="nav-item" id="nav-dashboard">
               <a class="nav-link" href="{{route('player.dashboard')}}">
@@ -59,7 +79,7 @@
             <li class="nav-item" id="nav-depositHistory">
               <a class="nav-link" href="#">
                 <i class="material-icons">description</i>
-                <p>Historial Pago</p>
+                <p>Historial Reclamos</p>
               </a>
             </li>
           @endif
