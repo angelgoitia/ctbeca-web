@@ -51,9 +51,9 @@
               </a>
             </li>
             @endif
-            <li class="nav-item" id="nav-deposits">
-              <a class="nav-link" href="#">
-                <i class="material-icons">account_balance</i>
+            <li class="nav-item" id="nav-claimHistory">
+              <a class="nav-link" href="{{route('admin.listClaim')}}">
+                <i class="material-icons">description</i>
                 Historial Reclamos
               </a>
             </li>
@@ -76,8 +76,8 @@
                 <p>Historial Axie Infinity</p>
               </a>
             </li>
-            <li class="nav-item" id="nav-depositHistory">
-              <a class="nav-link" href="#">
+            <li class="nav-item" id="nav-claimHistory">
+              <a class="nav-link" href="{{route('player.listClaim')}}">
                 <i class="material-icons">description</i>
                 <p>Historial Reclamos</p>
               </a>

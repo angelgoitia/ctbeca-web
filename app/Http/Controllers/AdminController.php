@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Session;
 use App\Animal;
+use App\Claim;
 use App\Player;
 use App\Rate;
 use App\TotalSlp;
@@ -345,8 +346,6 @@ class AdminController extends Controller
             return redirect(route('player.dashboard'));
         }
 
-
-        $orderBy = "ASC";
         $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
         $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
         $statusBiweekly = true;
@@ -471,8 +470,45 @@ class AdminController extends Controller
         return redirect()->route('admin.rate');
     }
 
+    public function listClaim (Request $request)
+    {  
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('admin.login'));
+        }elseif (Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('player.dashboard'));
+        }
+
+        $selectDate = Carbon::now()->setDay(15)->format('Y-m-d');
+        $statusBiweekly = true;
+        $initialDay = 1;
+        $finalDay = 15;
+        $months = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+        $monthDate = Carbon::now()->format('n');
+        $yearDate = Carbon::now()->format('Y');
+
+
+        if($request->all()){
+            $statusBiweekly = filter_var($request->statusBiweekly, FILTER_VALIDATE_BOOLEAN);
+            $monthDate = $request->monthDate;
+            $yearDate = $request->yearDate;
+
+            if($statusBiweekly)
+                $selectDate = Carbon::parse($yearDate.'-'.$monthDate.'-15')->format('Y-m-d');
+            else
+                $selectDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->endOfMonth()->format('Y-m-d');
+
+        }
+
+        $playersAll = Player::with(['claims' => function($q) use($selectDate) {
+            $q->whereDate('date', $selectDate);
+        }])->get();
+
+
+        $statusMenu = "claimHistory";
+        return view('admin.listClaim', compact('statusMenu', 'selectDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
+    }
+
     public function apiSLP(){
-        
 
         /* $now = Carbon::now()->format('Y-m-d');
         $player = Player::where('wallet', '256500f59497d6d6ae797d974ef22232479e4ddb')->with(['totalSLP' => function($q) use($now) {

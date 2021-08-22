@@ -7,8 +7,8 @@ $(document).ready( function () {
         $("#title-navbar").html("Becados");
     else if(statusMenu == "gameHistory")
         $("#title-navbar").html("Historial Axie infinity");
-    else if(statusMenu == "depositHistory")
-        $("#title-navbar").html("Historial del Pago");
+    else if(statusMenu == "claimHistory")
+        $("#title-navbar").html("Historial Reclamos");
     else if(statusMenu == "profile")
         $("#title-navbar").html("Perfil");
     else if(statusMenu == "rates")

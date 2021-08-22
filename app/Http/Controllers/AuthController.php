@@ -49,7 +49,7 @@ class AuthController extends Controller
 
             app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
 
-            $players = Player::with('totalSLP')->with('animals')->get();
+            $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->get();
 
             return response()->json([
                 'statusCode' => 201,
@@ -64,7 +64,7 @@ class AuthController extends Controller
             ]);
         }else{
             app('App\Http\Controllers\Controller')->updateSlp($player);
-            $player = Player::where("emailGame", request('email'))->with('totalSLP')->with('animals')->first();
+            $player = Player::where("emailGame", request('email'))->with('totalSLP')->with('animals')->with('claimsApi')->first();
             return response()->json([
                 'statusCode' => 201,
                 'type'         => 1,
@@ -93,7 +93,7 @@ class AuthController extends Controller
 
         app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
 
-        $players = Player::with('totalSLP')->with('animals')->get();
+        $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->get();
 
         return response()->json(
             [
@@ -111,7 +111,7 @@ class AuthController extends Controller
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
         app('App\Http\Controllers\Controller')->updateSlp($player);
-        $player = Player::whereId($request->user()->id)->with('totalSLP')->with('animals')->first();
+        $player = Player::whereId($request->user()->id)->with('totalSLP')->with('animals')->with('claimsApi')->first();
 
         return response()->json(['statusCode' => 201, 'player' => $player]);
     }

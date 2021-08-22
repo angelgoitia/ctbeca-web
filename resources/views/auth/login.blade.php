@@ -64,7 +64,6 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-12">
-                                        @if($type == 0)
                                         <div class="form-group form-section">
                                             <div class="input-group">
                                               <div class="input-group-prepend">
@@ -83,16 +82,6 @@
                                             </div>
                                             <div id="errorPassword" style="color:red;"></div>
                                         </div> 
-                                        @else
-                                        <div class="form-group form-section">
-                                            <div class="input-group">
-                                              <div class="input-group-prepend">
-                                                <span class="input-group-text"><i class="fas fa-wallet"></i></span>
-                                              </div>
-                                              <input type="text" class="form-control" name="wallet" placeholder="Billetera" autocomplete="off" minlength="20" data-parsley-errors-container="#wallet-errors" required="required">
-                                            </div>
-                                        </div>
-                                        @endif
                                     </div>
                                     <div class="col-12">
                                         <button class="submit btn btn-bordered w-100 mt-3 mt-sm-4" type="submit">Ingresar</button>

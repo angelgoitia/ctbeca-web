@@ -16,14 +16,14 @@ class PlayerController extends Controller
     public function login(Request $request)
     {
 
-        $user = Player::where("wallet", str_replace("ronin:", "", $request->wallet))->first();
-        if($user){
-            Auth::guard('web')->logout();
-            $request->session()->flush();
-        }else{
-            Auth::loginUsingId($user->id);
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if(Auth::guard('web')->attempt(['emailGame' => $request->email, 'password' => $request->password])) {
             return redirect()->intended(route('player.dashboard'));
-        }
+        } 
 
         Session::flash('message', "El correo o la contraseña es incorrecta!");
         return Redirect::back();
@@ -36,6 +36,13 @@ class PlayerController extends Controller
         }elseif (!Auth::guard('web')->check() && Auth::guard('admin')->check()){
             return redirect(route('admin.dashboard'));
         }
+
+        $now = Carbon::now()->format('Y-m-d');
+        $player = Player::whereId(Auth::guard('web')->id())->with(['totalSLP' => function($q) use($now) {
+            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+        }])->first();
+
+        app('App\Http\Controllers\Controller')->updateSlp($player);
 
         $totalSlpToday = 0;
         $totalSlpYesterday = 0;
@@ -53,7 +60,7 @@ class PlayerController extends Controller
             if($yesteday == Carbon::parse($slp->date)->format('Y-m-d'))
                 $totalSlpYesterday += $slp-> daily;
 
-            if(Carbon::parse($slp->date)->format('Y-m-d') >= $dateClaim && Carbon::parse($slp->date)->format('Y-m-d') <= $now){
+            if(Carbon::parse($slp->date)->format('Y-m-d') >= $dateClaim && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
                 $totalSlpUnclaimed += $slp-> daily;
                 
         }
@@ -133,5 +140,40 @@ class PlayerController extends Controller
 
         $statusMenu = "gameHistory";
         return view('player.listDaily', compact('statusMenu', 'startDate', 'endDate', 'player', 'orderBy'));
+    }
+
+    public function listClaim (Request $request)
+    {  
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('player.login'));
+        }elseif (!Auth::guard('web')->check() && Auth::guard('admin')->check()){
+            return redirect(route('admin.dashboard'));
+        }
+
+        $initialDay = 1;
+        $finalDay = 15;
+        $months = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+        $monthDate = Carbon::now()->format('n');
+        $yearDate = Carbon::now()->format('Y');
+
+
+        if($request->all()){
+            $statusBiweekly = filter_var($request->statusBiweekly, FILTER_VALIDATE_BOOLEAN);
+            $monthDate = $request->monthDate;
+            $yearDate = $request->yearDate;
+        }
+
+        $startDate = Carbon::parse($yearDate.'-'.$monthDate.'-15')->format('Y-m-d');
+        $endDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->endOfMonth()->format('Y-m-d');
+
+        $player = Player::whereId(Auth::guard('web')->id())->with(['claims' => function($q) use($startDate, $endDate) {
+            $q->whereDate('date', ">=",$startDate)
+                ->whereDate('date', "<=",$endDate);
+        }])->first();
+        
+        $listDate = [$startDate, $endDate];
+
+        $statusMenu = "claimHistory";
+        return view('player.listClaim', compact('statusMenu', 'listDate', 'player', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
     }
 }

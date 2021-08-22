@@ -55,6 +55,8 @@ Route::group(['middleware'=>'web'], function() {
     Route::post('/player/dataGraphic', 'AdminController@dataGraphic')->name('admin.dataGraphic');
     Route::get('/becado/perfil/', 'PlayerController@profile')->name('player.profile');
     Route::post('/becado/historial/juego', 'PlayerController@listDaily')->name('player.listDaily');
+    Route::get('/becado/historial/reclamos', 'PlayerController@listClaim')->name('player.listClaim');
+    Route::post('/becado/historial/reclamos', 'PlayerController@listClaim')->name('player.listClaim');
 });
 
 Route::group(['middleware'=>'admin'], function() {
@@ -72,6 +74,8 @@ Route::group(['middleware'=>'admin'], function() {
     Route::get('admin/tasas', 'AdminController@rates')->name('admin.rates');
     Route::get('admin/tasa', 'AdminController@rate')->name('admin.rate');
     Route::post('admin/tasa/form', 'AdminController@formRate')->name('admin.formRate');
+    Route::post('/admin/historial/reclamos', 'AdminController@listClaim')->name('admin.listClaim');
+    Route::get('/admin/historial/reclamos', 'AdminController@listClaim')->name('admin.listClaim');
     
     Route::get('/admin/api', 'AdminController@apiSLP')->name('admin.apiSLP');
 });

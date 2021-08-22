@@ -23,8 +23,13 @@ class Player extends Authenticatable
     ];
 
     protected $hidden = [
-        'password',
+        'passwordGame',
     ];
+
+    public function getAuthPassword()
+    {
+        return $this->passwordGame;
+    }
 
     public function totalSlp()
     {
@@ -44,5 +49,10 @@ class Player extends Authenticatable
     public function claims()
     {
         return $this->hasMany('App\Claim');
+    }
+
+    public function claimsApi()
+    {
+        return $this->hasMany(Claim::class)->orderBy('date', 'DESC');
     }
 }
