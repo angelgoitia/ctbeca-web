@@ -18,20 +18,20 @@
         <div class="justify-content-center has-success marginTop" id="row">
             <form id="formRate" action="{{route('admin.formRate')}}" method="post" autocomplete="off">
                 @csrf    
-                <h2 style="text-align: center; padding-bottom: 10px;">Modificar Tasa</h2>
+                <h2 style="text-align: center; padding-bottom: 10px;">Tasa</h2>
                 <div class="mb-3 row">
                     <label class="col-sm-2 col-form-label">SLP</label>
                     <div class="col">
                         <img src="{{ asset('images/less_equal.png') }}" width="20px">
                     </div>
                     <div class="col">
-                        <input type="num" class="form-control" id="lessSlp" name="lessSlp" value="{{$rate->lessSlp? $rate->lessSlp : ''}}" placeholder="75" autocomplete="off" required>
+                        <input type="num" class="form-control" id="lessSlp" name="lessSlp" value="{{$rate? $rate->lessSlp : ''}}" placeholder="75" autocomplete="off" required>
                     </div>
                     <div class="col">
                         <img src="{{ asset('images/right-arrow.png') }}" width="30px">
                     </div>
                     <div class="col">
-                        <input type="text" class="form-control" id="lessPercentage" name="lessPercentage" value="{{$rate->lessPercentage? $rate->lessPercentage : ''}}" placeholder="porcentaje" autocomplete="off" required>
+                        <input type="text" class="form-control" id="lessPercentage" name="lessPercentage" value="{{$rate? $rate->lessPercentage : ''}}" placeholder="porcentaje" autocomplete="off" required>
                     </div>
                 </div>
                 <div class="mb-3 row">
@@ -40,13 +40,13 @@
                         <img src="{{ asset('images/greater.png') }}" width="20px">
                     </div>
                     <div class="col">
-                        <input type="num" class="form-control" id="greaterSlp" name="greaterSlp" value="{{$rate->greaterSlp? $rate->greaterSlp : ''}}" placeholder="75" autocomplete="off" readonly required>
+                        <input type="num" class="form-control" id="greaterSlp" name="greaterSlp" value="{{$rate? $rate->greaterSlp : ''}}" placeholder="75" autocomplete="off" readonly required>
                     </div>
                     <div class="col">
                         <img src="{{ asset('images/right-arrow.png') }}" width="30px">
                     </div>
                     <div class="col">
-                        <input type="text" class="form-control" id="greaterPercentage" name="greaterPercentage" value="{{$rate->greaterPercentage? $rate->greaterPercentage : ''}}" placeholder="porcentaje" autocomplete="off" required>
+                        <input type="text" class="form-control" id="greaterPercentage" name="greaterPercentage" value="{{$rate? $rate->greaterPercentage : ''}}" placeholder="porcentaje" autocomplete="off" required>
                     </div>
                 </div>
 

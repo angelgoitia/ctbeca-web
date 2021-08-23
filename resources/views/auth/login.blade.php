@@ -74,11 +74,10 @@
                                         </div>
                                         <div id="email-errors" style="color:red;"></div>
                                         <div class="form-group">
-                                            <div class="input-group">
-                                              <div class="input-group-prepend">
+                                            <div class="input-group mb-3">
                                                 <span class="input-group-text"><i class="fas fa-unlock-alt"></i></span>
-                                              </div>
-                                              <input type="password" class="form-control" name="password" id="password" placeholder="Contraseña" data-parsley-required="true" data-parsley-errors-container="#errorPassword" required="required">
+                                                <input type="password" class="form-control" name="password" id="password" placeholder="Contraseña" data-parsley-required="true" data-parsley-errors-container="#errorPassword" required="required" aria-label="Password" aria-describedby="basic-addon2">
+                                                <span class="input-group-text" id="basic-addon2"><i class="fas fa-eye" id="spanEye"></i><i class="fas fa-eye-slash" id="spanEyeSlash"></i></span>
                                             </div>
                                             <div id="errorPassword" style="color:red;"></div>
                                         </div> 
@@ -118,6 +117,24 @@
 
     <!-- Active js -->
     <script src="{{ asset('landingPage/js/active.js') }}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#spanEyeSlash').hide();
+            $("#basic-addon2").click(function () { 
+                var x = document.getElementById("password");
+                if (x.type === "password"){
+                    x.type = "text";
+                    $('#spanEyeSlash').show();
+                    $('#spanEye').hide();
+                } else {
+                    x.type = "password";
+                    $('#spanEye').show();
+                    $('#spanEyeSlash').hide();
+                }
+            });
+        });
+    </script>
 
    
 </body>

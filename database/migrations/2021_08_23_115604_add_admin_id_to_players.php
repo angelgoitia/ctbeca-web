@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddNameToUsersTable extends Migration
+class AddAdminIdToPlayers extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class AddNameToUsersTable extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('name',50)->nullable();
-            $table->string('nameGroup',50)->nullable();
+        Schema::table('players', function (Blueprint $table) {
+            $table->unsignedBigInteger('admin_id')->nullable();
+            $table->foreign('admin_id')->references('id')->on('users');
         });
     }
 
@@ -26,9 +26,8 @@ class AddNameToUsersTable extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('name');
-            $table->dropColumn('nameGroup');
+        Schema::table('players', function (Blueprint $table) {
+            $table->dropColumn('admin_id');
         });
     }
 }

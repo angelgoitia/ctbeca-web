@@ -95,6 +95,31 @@
                             <input type="text" class="form-control"  id="referenceOther" name="referenceOther" minlength="3" pattern="([a-zA-ZÁÉÍÓÚñáéíóú]{1,}[\s]*)+" value="{{$playerSelect && $statusReference? $playerSelect->reference : ''}}" autocomplete="off" required>
                         </div>
                     </div>
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Grupo</label>
+                        <label class="content-select content-select">
+                            @if(Auth::guard('admin')->id() == 1)
+                                <select class="addMargin" name="group" id="group" required>
+                            @else
+                                <select class="addMargin" name="group" id="group" disabled>
+                            @endif
+                                @if($playerSelect || Auth::guard('admin')->id() != 1)
+                                    <option value="" disabled>Seleccionar</option>
+                                @else
+                                    <option value="" disabled selected>Seleccionar</option>
+                                @endif
+
+                                @foreach($groups as $group)
+
+                                    @if($playerSelect && $playerSelect->group && $playerSelect->group->id == $group->id || (Auth::guard('admin')->id() != 1 && Auth::guard('admin')->id() == $group->id))
+                                        <option value="{{$group->id}}" selected>{{$group->nameGroup}}</option> 
+                                    @else
+                                        <option value="{{$group->id}}">{{$group->nameGroup}}</option> 
+                                    @endif 
+                                @endforeach
+                            </select>
+                        </label> 
+                    </div>
                     <div class="row justify-content-center align-items-center minh-10">
                         <h4><Strong>Acceso del Juego</Strong></h4>
                     </div>
@@ -140,8 +165,13 @@
                     </div>
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">Contraseña</label>
-                        <div class="col-sm-4">
-                            <input type="password" class="form-control" id="passwordGame" name="passwordGame" placeholder="Contraseña" autocomplete="off" required>
+                        <div class="input-group mb-3">
+                            <input type="password" class="form-control" name="passwordGame" id="passwordGame" placeholder="Contraseña" autocomplete="off" required aria-label="Password" aria-describedby="basic-addon2">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-fab btn-round btnEye">
+                                    <i class="material-icons">visibility</i>
+                                </button>
+                            </span>
                         </div>
                     </div>
                     <div class="row justify-content-md-center">
@@ -151,7 +181,7 @@
             </div>
             <div class="modal-footer">
                 <div class="marginAuto">
-                    <button type="submit" class="submit btn btn-bottom" id="submit_player" form="formPlayer">Guardar Becados</button>
+                    <button type="submit" class="submit btn btn-bottom" id="submit_player" form="formPlayer">Guardar Becado</button>
                 </div>
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -163,7 +193,7 @@
 <script>
     $(document).ready(function () {
         var statusReference = $('#reference').val();
-        console.log(statusReference);
+
         if(statusReference != "Otro"){
             $("#referenceOther").prop('required',false);
             $('#referenceOther').addClass('referenceHide');
@@ -172,25 +202,37 @@
             $('#referenceOther').removeClass('referenceHide');
         }
 
-    });
-    $(".fileinput-exists").click(function (e) { 
-        e.preventDefault();
-        $("#codeQr").prop('required',true);
-    });
+        $(".btnEye").click(function () { 
+            var x = document.getElementById("passwordGame");
+            if (x.type === "password"){
+                x.type = "text";
+                $(this).find('i').text("visibility_off");
+            } else {
+                x.type = "password";
+                $(this).find('i').text("visibility");
+            }
+        });
 
-    $(".btn-file").click(function (e) { 
-        $("#codeQr").prop('required',true);
-    });
+        $(".fileinput-exists").click(function (e) { 
+            e.preventDefault();
+            $("#codeQr").prop('required',true);
+        });
 
-    $("#reference").on('change', function() {
-        selectReference = $(this).val();
-        if(selectReference == "Otro"){
-            $("#referenceOther").prop('required',true);
-            $('#referenceOther').removeClass('referenceHide');
-        }
-        else{
-            $("#referenceOther").prop('required',false);
-            $('#referenceOther').addClass('referenceHide');
-        }
+        $(".btn-file").click(function (e) { 
+            $("#codeQr").prop('required',true);
+        });
+
+        $("#reference").on('change', function() {
+            selectReference = $(this).val();
+            if(selectReference == "Otro"){
+                $("#referenceOther").prop('required',true);
+                $('#referenceOther').removeClass('referenceHide');
+            }
+            else{
+                $("#referenceOther").prop('required',false);
+                $('#referenceOther').addClass('referenceHide');
+            }
+        });
+
     });
 </script>

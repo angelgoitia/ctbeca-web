@@ -19,7 +19,7 @@ class Player extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr', 'dateClaim'
+        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr', 'dateClaim', 'admin_id'
     ];
 
     protected $hidden = [
@@ -55,4 +55,10 @@ class Player extends Authenticatable
     {
         return $this->hasMany(Claim::class)->orderBy('date', 'DESC');
     }
+
+    public function group()
+    {
+        return $this->hasOne(User::class, 'id', 'admin_id');
+    } 
+    
 }

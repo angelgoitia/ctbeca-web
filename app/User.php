@@ -17,7 +17,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'email', 'password',
+        'id', 'name', 'email', 'password', 'nameGroup',
     ];
 
     /**
@@ -42,4 +42,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Rate');
     }
-}
+
+    public function players()
+    {
+        return $this->hasMany(Player::class, 'admin_id', 'id');
+    }
+} 

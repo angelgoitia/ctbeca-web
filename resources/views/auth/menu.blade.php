@@ -38,7 +38,7 @@
                 </a>
               </li>
               <li class="nav-item" id="nav-groups">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="{{route('admin.listGroup')}}">
                   <i class="material-icons">groups</i>
                   Grupos
                 </a>

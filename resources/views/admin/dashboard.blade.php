@@ -14,7 +14,7 @@
 <body class="">
   @include('auth.menu')
     <div class="main-panel">
-      @include('auth.navbar')
+      @include('admin.navbar')
       <div class="content">
         <div class="container-fluid">
           <div class="row">

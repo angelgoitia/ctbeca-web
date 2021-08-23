@@ -50,32 +50,31 @@
             <td style="background-color: #fff; font-size: 16px">
                 <div style="color: #34495e; margin: 4% 10% 2%; text-align: left; font-family: sans-serif;">
 
-                    <p style="color:#59595e; margin: 0 0 7px;"> Estimado/a <strong>{{strtoupper($player->name)}}</strong></p>
+                    <p style="color:#59595e; margin: 0 0 7px;"> Estimado/a <strong>{{strtoupper($player->group->name)}}</strong></p>
 
                     <br>
                     <br>
 
                     <p style="color:#59595e; margin: 0 0 7px;">
-                        En CTBeca estamos encantados de que te unieran con nosotros.
+                        En CTBeca estamos informando el siguiente Becado no se pudo agregar el total SLP Diaria:.
                         <br>
                         <br>
-                        @if(!empty($player->urlCodeQr))
-                            <img src="{{asset('storage/'.$player->urlCodeQr)}}" width="150px" style="padding: 10px; display: block; margin: 0 auto;">
-                        @endif
+                        Nombre: <strong><a href="">{{$player->name}}</a></strong>
+                        <br>
+                        <br>
+                        Correo Electrónico: <strong><a href="">{{$player->email}}</a></strong>
                         <br>
                         <br>
                         Billetera: ronin: <strong><a href="">{{$player->wallet}}</a></strong>
                         <br>
                         <br>
-                        Correo Electrónico: <strong><a href="">{{$player->emailGame}}</a></strong>
-                        <br>
-                        Contraseña: <strong><a href="">{{$password}}</a></strong>
+                        Correo Electrónico Axies Infinity: <strong><a href="">{{$player->emailGame}}</a></strong>
                     </p>
 
                     <br>
 
                     <p style="color:#59595e; margin: 0 0 7px;">
-                       Ya puede empezar a usar la aplicación web y/o móvil en su totalidad.
+                       Por favor ingrese el total SLP Diaria <strong>Manualmente</strong>.
                     </p>
 
                     <br>

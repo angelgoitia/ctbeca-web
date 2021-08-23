@@ -300,3 +300,7 @@ th:first-child .outerDiv {
 .referenceHide{
     display: none !important;
 }
+
+.btn-fab {
+    background-color: #00cc5f !important;
+}

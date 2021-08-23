@@ -8,7 +8,10 @@ use App\Claim;
 use App\Player;
 use App\Rate;
 use App\TotalSlp;
+use App\User;
 use Carbon\Carbon;
+use App\Notifications\InfoGroup;
+use App\Notifications\NewGroup;
 use App\Notifications\NewPlayer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +25,6 @@ class AdminController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-
 
         if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return redirect()->intended(route('admin.dashboard'));
@@ -54,9 +56,14 @@ class AdminController extends Controller
 
         $now = Carbon::now()->format('Y-m-d');
 
-        $players = Player::with(['totalSLP' => function($q) use($now) {
-            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
-        }])->get();
+        if(Auth::guard('admin')->id() == 1)
+            $players = Player::with(['totalSLP' => function($q) use($now) {
+                $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+            }])->get();
+        else
+            $players = Player::where('admin_id', Auth::guard('admin')->id())->with(['totalSLP' => function($q) use($now) {
+                $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+            }])->get();
 
         app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
 
@@ -67,8 +74,11 @@ class AdminController extends Controller
         $totalSlpManager = 0;
         $totalSlpAll = 0;
         $yesteday = Carbon::yesterday()->format('Y-m-d');
-
-        $playersAll = Player::with("totalSLP")->get();
+        
+        if(Auth::guard('admin')->id() == 1)
+            $playersAll = Player::with("totalSLP")->get();
+        else
+            $playersAll = Player::where('admin_id', Auth::guard('admin')->id())->with("totalSLP")->get();
 
         foreach($playersAll as $player){
             $dateClaim = Carbon::parse($player->dateClaim)->format('Y-m-d');
@@ -103,9 +113,15 @@ class AdminController extends Controller
 
         for ($i = 0; $i < 17; $i++) {
             $totalSlp = 0;
-            $playersAll = Player::with(['totalSLP' => function($q) use($years, $month, $i) {
-                $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(16-$i)->format('d'))."%"); 
-            }])->get();
+
+            if(Auth::guard('admin')->id() == 1)
+                $playersAll = Player::with(['totalSLP' => function($q) use($years, $month, $i) {
+                    $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(16-$i)->format('d'))."%"); 
+                }])->get();
+            else
+                $playersAll = Player::where('admin_id', Auth::guard('admin')->id())->with(['totalSLP' => function($q) use($years, $month, $i) {
+                    $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(16-$i)->format('d'))."%"); 
+                }])->get();
 
             foreach($playersAll as $player){
                 foreach($player->totalSLP as $slp){
@@ -129,16 +145,17 @@ class AdminController extends Controller
             return redirect(route('player.dashboard'));
         }
 
-        $playersAll= Player::orderBy("name","asc")->get();
-        $playerSelect = array();
+        if(Auth::guard('admin')->id() == 1)
+            $playersAll= Player::orderBy("name","asc")->get();
+        else
+            $playersAll= Player::where('admin_id', Auth::guard('admin')->id())->orderBy("name","asc")->get();
 
         $statusMenu = "players";
-        return view('admin.listPlayers', compact('statusMenu', 'playersAll', 'playerSelect'));
+        return view('admin.listPlayers', compact('statusMenu', 'playersAll'));
     }
 
     public function formPlayer(Request $request)
     {
-
         $status = false ;
         $errorMsg;
         if(empty($request->playerSelect))
@@ -201,10 +218,10 @@ class AdminController extends Controller
                     'telegram'      => $request->telegram,
                     'email'         => $request->email,
                     'reference'     => $reference,
-                    'user'          => $request->user,
                     'emailGame'     => $request->emailGame,
                     'passwordGame'  => bcrypt($request->passwordGame),
-                    'wallet'        => str_replace("ronin:","", $request->wallet)
+                    'wallet'        => str_replace("ronin:","", $request->wallet),
+                    'admin_id'      => intval($request->group),
                 ]
             );
         }else{
@@ -214,9 +231,9 @@ class AdminController extends Controller
             $player->telegram      = $request->telegram;
             $player->email         = $request->email;
             $player->reference     = $reference;
-            $player->user          = $request->user;
             $player->emailGame     = $request->emailGame;
             $player->passwordGame  = bcrypt($request->passwordGame);
+            $player->admin_id      = intval($request->group);
             $player->save();
         }
         
@@ -322,19 +339,17 @@ class AdminController extends Controller
 
     public function showPlayer(Request $request)
     {
-        $player = Player::whereId($request->id)->with('animals')->first();
-
-        $returnHTML=view('admin.modal.detailsPlayer', compact('player'))->render();
+        $player = Player::whereId($request->id)->with('animals')->with('group')->first();
+        $returnHTML=view('admin.modal.detailsPlayer', compact('player', 'groups'))->render();
         return response()->json(array('html'=>$returnHTML));
     }
 
     public function editPlayer(Request $request)
     {
-        $playerSelect = Player::whereId($request->id)->first();
-
+        $playerSelect = Player::whereId($request->id)->with('group')->first();
         $players = Player::all();
-
-        $returnHTML=view('admin.modal.player', compact('playerSelect', 'players'))->render();
+        $groups = User::where("id", '!=', 1)->get();
+        $returnHTML=view('admin.modal.player', compact('playerSelect', 'players', 'groups'))->render();
         return response()->json(array('html'=>$returnHTML));
     }
 
@@ -378,10 +393,16 @@ class AdminController extends Controller
 
         }
 
-        $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $endDate) {
-            $q->whereDate('date', ">=",$startDate)
-                ->whereDate('date', "<=",$endDate);
-        }])->get();
+        if(Auth::guard('admin')->id() == 1)
+            $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $endDate) {
+                $q->whereDate('date', ">=",$startDate)
+                    ->whereDate('date', "<=",$endDate);
+            }])->get();
+        else
+            $playersAll = Player::where('admin_id', Auth::guard('admin')->id())->with(['totalSLP' => function($q) use($startDate, $endDate) {
+                $q->whereDate('date', ">=",$startDate)
+                    ->whereDate('date', "<=",$endDate);
+            }])->get();
 
 
         $statusMenu = "gameHistory";
@@ -391,7 +412,10 @@ class AdminController extends Controller
 
     public function newSLP(Request $request)
     {
-        $players = Player::all();
+        if(Auth::guard('admin')->id() == 1)
+            $players = Player::all();
+        else
+            $players = Player::where('admin_id', Auth::guard('admin')->id())->get(); 
 
         $returnHTML=view('admin.modal.newSlp', compact('players'))->render();
         return response()->json(array('html'=>$returnHTML));
@@ -499,17 +523,90 @@ class AdminController extends Controller
 
         }
 
-        $playersAll = Player::with(['claims' => function($q) use($selectDate) {
-            $q->whereDate('date', $selectDate);
-        }])->get();
+        if(Auth::guard('admin')->id() == 1)
+            $playersAll = Player::with(['claims' => function($q) use($selectDate) {
+                $q->whereDate('date', $selectDate);
+            }])->get();
+        else
+            $playersAll = Player::where('admin_id', Auth::guard('admin')->id())->with(['claims' => function($q) use($selectDate) {
+                $q->whereDate('date', $selectDate);
+            }])->get();
 
 
         $statusMenu = "claimHistory";
         return view('admin.listClaim', compact('statusMenu', 'selectDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
     }
 
-    public function apiSLP(){
+    public function listGroup(){
+        $groups = User::where("id", '!=', 1)->get();
 
+        $statusMenu = "groups";
+        return view('admin.listGroups', compact('statusMenu', 'groups'));
+    }
+
+    public function editGroup(Request $request){
+        $groupSelect = User::whereId($request->id)->first();
+
+        $groups = User::where("id", '!=', 1)->get();
+
+        $returnHTML=view('admin.modal.group', compact('groupSelect', 'groups'))->render();
+        return response()->json(array('html'=>$returnHTML));
+    }
+
+    public function verifyGroup(Request $request){
+        $listError = array();
+
+        $group = User::where('email', $request->email)->where('id', '!=', $request->id)->first();
+        if($group) 
+            array_push($listError, "Correo Electrónico ingresado ya existe");
+
+        $group = User::where('nameGroup', $request->nameGroup)->where('id', '!=', $request->id)->first();
+        if($group) 
+            array_push($listError, "Nombre del Grupo ingresado ya existe");
+
+        return response()->json(['statusCode' => 201, 'listError' => $listError, 'listErrorLength' => count($listError)]);
+    }
+
+    public function formGroup(Request $request)
+    {
+        if(empty($request->groupSelect))
+        {
+            $group =  User::create(
+                [
+                    'name'          => $request->name,
+                    'nameGroup'     => $request->nameGroup,
+                    'email'         => $request->email,
+                    'password'  => bcrypt($request->password),
+                ]
+            );
+
+        }else{
+            $group =  User::where('email', $request->email)->first();
+            $group->name      = $request->name;
+            $group->nameGroup = $request->nameGroup;
+            $group->password  = bcrypt($request->password);
+            $group->save();
+        }
+
+        (new User)->forceFill([
+            'email' => $request->email,
+        ])->notify(
+            new NewGroup($group, $request->password)
+        );  
+
+        return redirect()->route('admin.listGroup');
+    }
+
+    public function apiSLP(){
+        /* $admin = User::whereId(2)->with('players')->first();
+        dd($admin); */
+        $player = Player::where('email', 'angelgoitia1995@gmail.com')->with('group')->first();
+
+        (new User)->forceFill([
+            'email' => $player->group->email,
+        ])->notify(
+            new InfoGroup($player)
+        ); 
         /* $now = Carbon::now()->format('Y-m-d');
         $player = Player::where('wallet', '256500f59497d6d6ae797d974ef22232479e4ddb')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 

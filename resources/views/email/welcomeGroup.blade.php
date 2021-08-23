@@ -50,24 +50,16 @@
             <td style="background-color: #fff; font-size: 16px">
                 <div style="color: #34495e; margin: 4% 10% 2%; text-align: left; font-family: sans-serif;">
 
-                    <p style="color:#59595e; margin: 0 0 7px;"> Estimado/a <strong>{{strtoupper($player->name)}}</strong></p>
+                    <p style="color:#59595e; margin: 0 0 7px;"> Estimado/a <strong>{{strtoupper($group->name)}}</strong></p>
 
                     <br>
                     <br>
 
                     <p style="color:#59595e; margin: 0 0 7px;">
-                        En CTBeca estamos encantados de que te unieran con nosotros.
+                        En CTBeca estamos informando que ya puede ingresar al sistema con la siguiente datos. 
                         <br>
                         <br>
-                        @if(!empty($player->urlCodeQr))
-                            <img src="{{asset('storage/'.$player->urlCodeQr)}}" width="150px" style="padding: 10px; display: block; margin: 0 auto;">
-                        @endif
-                        <br>
-                        <br>
-                        Billetera: ronin: <strong><a href="">{{$player->wallet}}</a></strong>
-                        <br>
-                        <br>
-                        Correo Electrónico: <strong><a href="">{{$player->emailGame}}</a></strong>
+                        Correo Electrónico: <strong><a href="">{{$group->email}}</a></strong>
                         <br>
                         Contraseña: <strong><a href="">{{$password}}</a></strong>
                     </p>

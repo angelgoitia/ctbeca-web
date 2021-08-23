@@ -17,7 +17,7 @@
       @include('auth.navbar')
         <div class="row buttonCreatePlayers">
             <div class="col">
-                <button type='button' class="btn btn-bottom" onclick="editPlayer(0)"><i class="material-icons">edit</i> Crear Becados</button>
+                <button type='button' class="btn btn-bottom" onclick="editPlayer(0)"><i class="material-icons">edit</i> Crear Becado</button>
             </div>
         </div>
         <div class="tableShow">
@@ -37,6 +37,7 @@
                         <th scope="col">Correo Electrónico</th>
                         <th scope="col">Teléfono</th>
                         <th scope="col">Referencia</th>
+                        <th scope="col">Grupo</th>
                         <th scope="col">Acciones</th>
                     </tr>
                 </thead>
@@ -49,8 +50,9 @@
                         <td>{{ $player->email }}</td>
                         <td>{{ $player->phone }}</td>
                         <td>{{ $player->reference }}</td>
+                        <td>{{ $player->group? $player->group->nameGroup : 'Sin Grupo' }}</td>
                         <td>
-                        <botton class="btn btn-bottom" onclick="showPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver"><i class="material-icons">visibility</i></botton>
+                            <botton class="btn btn-bottom" onclick="showPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Ver"><i class="material-icons">visibility</i></botton>
                             <botton class="btn btn-bottom" onclick="editPlayer({{$player->id}})" rel="tooltip" data-toggle="tooltip" data-placement="left" title="Modificar"><i class="material-icons">edit</i></botton>
                         </td>
                     </tr>

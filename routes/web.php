@@ -76,6 +76,10 @@ Route::group(['middleware'=>'admin'], function() {
     Route::post('admin/tasa/form', 'AdminController@formRate')->name('admin.formRate');
     Route::post('/admin/historial/reclamos', 'AdminController@listClaim')->name('admin.listClaim');
     Route::get('/admin/historial/reclamos', 'AdminController@listClaim')->name('admin.listClaim');
+    Route::get('/admin/grupos', 'AdminController@listGroup')->name('admin.listGroup');
+    Route::post('/admin/grupos/edit', 'AdminController@editGroup')->name('admin.editGroup');
+    Route::post('/admin/grupo/form', 'AdminController@formGroup')->name('admin.formGroup');
+    Route::post('admin/verify/group', 'AdminController@verifyGroup')->name('admin.verifyGroup');
     
     Route::get('/admin/api', 'AdminController@apiSLP')->name('admin.apiSLP');
 });

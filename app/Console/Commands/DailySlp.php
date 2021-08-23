@@ -43,7 +43,7 @@ class DailySlp extends Command
         $listPlayer = array();
         $status = 0;
         $now = Carbon::now()->format('Y-m-d');
-        $players = Player::with(['totalSLP' => function($q) use($now) {
+        $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->get();
 
@@ -96,7 +96,12 @@ class DailySlp extends Command
                 );
                 $status++;
             }else {
-                array_push($listPlayer, $player);
+
+                (new User)->forceFill([
+                    'email' => $player->group->email,
+                ])->notify(
+                    new InfoGroup($player)
+                ); 
             }
 
             app('App\Http\Controllers\AdminController')->getUpdateAnimal($player->id, $player->wallet);
