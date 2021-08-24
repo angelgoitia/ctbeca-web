@@ -21,7 +21,7 @@
                         <label><strong>Nombre : </strong>{{$player->name}}</label> <br> 
                         <label><strong>Correo Electrónico: </strong>{{$player->email}}</label> <br> 
                         <label><strong>Teléfono: </strong>{{$player->phone}}</label> <br> 
-                        <label><strong>Telegram: </strong>{{$player->telegram}}</label> <br> 
+                        <label><strong>Telegram: </strong>{{$player->telegram}}</label> <br>
                         <label><strong>Referencia: </strong>{{$player->reference}}</label> <br> 
                     </div>
 

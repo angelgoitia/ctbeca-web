@@ -43,22 +43,34 @@ class AuthController extends Controller
         $token->save();
 
         if($user){
-            $players = Player::with(['totalSLP' => function($q) use($now) {
-                $q->where('date', "!=", $now)->orderBy('date','DESC'); 
-            }])->get();
+            $admins = User::where('id', '!=', 1)->where('id', '!=', $user->id)->get();
+            if($user->id == 1)
+                $players = Player::with(['totalSLP' => function($q) use($now) {
+                    $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+                }])->get();
+            else
+                $players = Player::where('admin_id', $user->id)->with(['totalSLP' => function($q) use($now) {
+                    $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+                }])->get();
 
             app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
-
-            $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->get();
+            
+            if($user->id == 1)
+                $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->with('group')->get();
+            else
+                $players = Player::where('admin_id', $user->id)->with('totalSLP')->with('animals')->with('claimsApi')->with('group')->get();
+                
 
             return response()->json([
                 'statusCode' => 201,
                 'type'         => 0,
+                'admin'        => $user,
                 'access_token' => $tokenResult->accessToken,
                 'token_type'   => 'Bearer',
                 'expires_at'   => Carbon::parse(
                     $tokenResult->token->expires_at)
                         ->toDateTimeString(),
+                'admins'       => $admins,
                 'players'       => $players,
                 
             ]);
@@ -86,19 +98,30 @@ class AuthController extends Controller
 
     public function admin(Request $request)
     {
+        $admins = User::where('id', '!=', 1)->where('id', '!=', $request->user()->id)->get();
         $now = Carbon::now()->format('Y-m-d');
-        $players = Player::with(['totalSLP' => function($q) use($now) {
-            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
-        }])->get();
+        if($request->user()->id == 1)
+            $players = Player::with(['totalSLP' => function($q) use($now) {
+                $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+            }])->get();
+        else
+            $players = Player::where('admin_id', $request->user()->id)->with(['totalSLP' => function($q) use($now) {
+                $q->where('date', "!=", $now)->orderBy('date','DESC'); 
+            }])->get();
 
         app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
 
-        $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->get();
+        if($request->user()->id == 1)
+            $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->with('group')->get();
+        else
+            $players = Player::where('admin_id', $request->user()->id)->with('totalSLP')->with('animals')->with('claimsApi')->with('group')->get();
+            
 
         return response()->json(
             [
                 'statusCode' => 201,
                 'admin' => $request->user(),
+                'admins' => $admins,
                 'players' => $players,
             ]
         );
