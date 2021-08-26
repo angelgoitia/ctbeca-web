@@ -56,7 +56,7 @@
                     <br>
 
                     <p style="color:#59595e; margin: 0 0 7px;">
-                        En CTBeca estamos informando el siguiente Becado no se pudo agregar el total SLP Diaria:.
+                        En CTBeca estamos informando el siguiente Becado no se pudo agregar el total SLP Diaria:
                         <br>
                         <br>
                         Nombre: <strong><a href="">{{$player->name}}</a></strong>

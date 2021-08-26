@@ -138,4 +138,19 @@ class AuthController extends Controller
 
         return response()->json(['statusCode' => 201, 'player' => $player]);
     }
+
+    public function updateToken(Request $request){
+        if($request->type == 0){
+            $admin = User::whereId($request->user()->id)->first();
+            $admin->tokenFCM = $request->tokenFCM;
+            $admin->save();
+        }else{
+            $player = Player::whereId($request->user()->id)->first();
+            $player->tokenFCM = $request->tokenFCM;
+            $player->save();
+        }
+
+        return response()->json(['statusCode' => 201]);
+
+    }
 }

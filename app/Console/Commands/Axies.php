@@ -47,7 +47,7 @@ class Axies extends Command
 
         foreach ($players as $player)
         {
-            app('App\Http\Controllers\AdminController')->getUpdateAnimal($player->id, $player->wallet);
+            app('App\Http\Controllers\AdminController')->getUpdateAnimal($player);
             
         }
 

@@ -19,7 +19,7 @@ class Player extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr', 'dateClaim', 'admin_id'
+        'id', 'name', 'email', 'phone', 'telegram', 'urlCodeQr', 'reference', 'emailGame', 'passwordGame', 'wallet', 'urlCodeQr', 'dateClaim', 'admin_id', 'tokenFCM'
     ];
 
     protected $hidden = [

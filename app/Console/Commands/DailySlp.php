@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Notifications\InfoGroup;
 use App\Player;
 use App\TotalSlp;
 use Carbon\Carbon;
@@ -104,7 +105,6 @@ class DailySlp extends Command
                 ); 
             }
 
-            app('App\Http\Controllers\AdminController')->getUpdateAnimal($player->id, $player->wallet);
             
         }
 

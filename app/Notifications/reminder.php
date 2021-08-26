@@ -6,18 +6,19 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class InfoGroup extends Notification 
+class Reminder extends Notification 
 {
     use Queueable;
-    protected $player;
+    protected $player, $message;
     /**
     * Create a new notification instance.
     *
     * @return void
     */
-    public function __construct($player)
+    public function __construct($player, $message)
     {
         $this->player = $player;
+        $this->message = $message;
     }
     /**
     * Get the notification's delivery channels.
@@ -38,9 +39,9 @@ class InfoGroup extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject("Aviso importante")
+            ->subject("Aviso importante: Recordatorio")
             ->markdown(
-                'email.infoGroup', ['player' => $this->player]
+                'email.reminder', ['player' => $this->player, 'message' => $this->message]
             );
     }
 /**

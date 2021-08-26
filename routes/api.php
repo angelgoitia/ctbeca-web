@@ -11,6 +11,7 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', 'AuthController@logout');
         Route::get('admin', 'AuthController@admin');
         Route::get('player', 'AuthController@player');
+        Route::post('updateToken', 'AuthController@updateToken');
         Route::post('formPlayer', 'AdminController@formPlayer');
     });
 

@@ -41,7 +41,7 @@
             <td style="background-color: #fff; text-align: left; padding: 0;">
                 <br>
                 <a href="">
-                    <img src="{{ asset('images/email/1.png') }}" style="padding: 10px; display: block; margin: 0 auto; width: 80px;">
+                    <img src="{{ asset('images/email/2.png') }}" style="padding: 10px; display: block; margin: 0 auto; width: 80px;">
                 </a>
             </td>
         </tr>

@@ -225,7 +225,7 @@ class AdminController extends Controller
                 ]
             );
         }else{
-            $player =  Player::where('wallet', str_replace("ronin:","", $request->wallet))->first();
+            $player =  Player::where('wallet', str_replace("ronin:","", $request->wallet))->with('animals')->first();
             $player->name          = $request->name;
             $player->phone         = $request->digPhone."-".$request->phone;
             $player->telegram      = $request->telegram;
@@ -264,7 +264,7 @@ class AdminController extends Controller
             new NewPlayer($player, $request->passwordGame)
         );  
 
-        $this->getUpdateAnimal($player->id, $player->wallet);
+        $this->getUpdateAnimal($player);
 
         if($request->statusApi == 'true')
             return response()->json(['statusCode' => 201, 'message' => "saved correctly! "]);
@@ -272,68 +272,74 @@ class AdminController extends Controller
             return redirect()->route('admin.listPlayers');
     }
 
-    public function getUpdateAnimal($id, $wallet){
+    public function getUpdateAnimal($player){
+
         $urlApi = [
-            'https://api.axie.com.ph/get-axies/0x', 'https://axie-proxy.secret-shop.buzz/_axiesPlease/0x'
-        ];
+            'https://api.axie.com.ph/get-axies/0x', 'https://axie-proxy.secret-shop.buzz/_axies/0x'
+       ];
 
-        foreach ($urlApi as $key => $api){
-            $count = 0;
+       foreach ($urlApi as $key => $api){
+           $results = [];
+           $total = 0;
+           $count = 1;
+           
+           $url = $api.$player->wallet;
+           $ch = curl_init($url);
+           
+           curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+           curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
+           curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
 
-            $url = $api.$wallet;
-            $ch = curl_init($url);
-            
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+           $resultApi = json_decode(curl_exec($ch), true);
+           curl_close($ch);
 
-            $resultApi = json_decode(curl_exec($ch), true);
-            curl_close($ch);
+           if($key == 0 && $resultApi && isset($resultApi['results']) && count($resultApi['results']) > 0 ){
+               $results = $resultApi['results'];
+               $total = count($resultApi['results']);
+           }
+           else if($key == 1 && $resultApi && isset($resultApi['available_axies']['results']) && $resultApi['available_axies']['total'] > 0 ){
+               $results = $resultApi['available_axies']['results'];
+               $total =  $resultApi['available_axies']['total'];
+           }
 
-            if($key == 0 && $resultApi && $resultApi['results']){
 
-                foreach($resultApi['available_axies']['results'] as $axie)
-                {
-                    $count ++;
-                    $name = explode(" ", $axie['name']);
 
-                    Animal::updateOrCreate(
-                        [
-                            'player_id'    => $id,
-                            'code'          => $axie['id'],
-                        ],
-                        [
-                            'name'          => $name[0],
-                            'nomenclature'  => $name[1],
-                            'type'          => $axie['class'],
-                            'image'         => $axie['image'],
-                        ]
-                    );
+           foreach($player->animals as $key => $animal){
 
-                }
+               if($total < count($player->animals) && $count > $total)
+                   $animal->delete();
+               else{
+                   $name = explode(" ", $results[$key]['name']);
+                   $animal->code = $results[$key]['id']; 
+                   $animal->name = $name[0]; 
+                   $animal->nomenclature = $name[1]; 
+                   $animal->type = $results[$key]['class'];
+                   $animal->image = $results[$key]['image']; 
+                   $animal->save();
+               }
 
-            }else if($key == 1 && $resultApi && isset($resultApi['available_axies']['results'])){
+               $count++;
+           }
 
-                foreach($resultApi['available_axies']['results'] as $axie)
-                {
-                    $count ++;
-                    $name = explode(" ", $axie['name']);
-                    Animal::updateOrCreate(
-                        [
-                            'player_id'    => $id,
-                            'code'          => $axie['id'],
-                        ],
-                        [
-                            'name'          => $name[0],
-                            'nomenclature'  => $name[1],
-                            'type'          => $axie['class'],
-                            'image'         => $axie['image'],
-                        ]
-                    );
-                }
-            }
+           if($count <= $total){
+               for ($i = $count-1; $i < $total; $i++){
+                   $name = explode(" ", $results[$i]['name']);
+                   Animal::create([
+                       'player_id'     => $player->id,
+                       'code'          => $results[$i]['id'],
+                       'name'          => $name[0],
+                       'nomenclature'  => $name[1],
+                       'type'          => $results[$i]['class'],
+                       'image'         => $results[$i]['image'],
+                   ]);
+               }
+           }
 
-        }
+
+           if($total > 0)
+               break;
+
+       }
 
     }
 
@@ -369,6 +375,8 @@ class AdminController extends Controller
         $months = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
         $monthDate = Carbon::now()->format('n');
         $yearDate = Carbon::now()->format('Y');
+        $groupId = 0; 
+        $groups = User::where('id', '!=', 1)->get();
 
         if(Carbon::now()->format('d') > 15){
             $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
@@ -383,6 +391,8 @@ class AdminController extends Controller
             $monthDate = $request->monthDate;
             $yearDate = $request->yearDate;
 
+            $groupId = $request->groupId;
+
             if($statusBiweekly){
                 $startDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->format('Y-m-d');
                 $endDate = Carbon::parse($yearDate.'-'.$monthDate.'-15')->format('Y-m-d');
@@ -393,20 +403,25 @@ class AdminController extends Controller
 
         }
 
-        if(Auth::guard('admin')->id() == 1)
+        if(Auth::guard('admin')->id() != 1)
+            $groupId = Auth::guard('admin')->id();
+
+
+        if(Auth::guard('admin')->id() == 1 && $groupId == 0)
             $playersAll = Player::with(['totalSLP' => function($q) use($startDate, $endDate) {
                 $q->whereDate('date', ">=",$startDate)
                     ->whereDate('date', "<=",$endDate);
             }])->get();
         else
-            $playersAll = Player::where('admin_id', Auth::guard('admin')->id())->with(['totalSLP' => function($q) use($startDate, $endDate) {
+            $playersAll = Player::where('admin_id', $groupId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
                 $q->whereDate('date', ">=",$startDate)
                     ->whereDate('date', "<=",$endDate);
             }])->get();
+        
 
 
         $statusMenu = "gameHistory";
-        return view('admin.listDaily', compact('statusMenu', 'startDate', 'endDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
+        return view('admin.listDaily', compact('statusMenu', 'startDate', 'endDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate', 'groups', 'groupId'));
     }
 
 
@@ -509,12 +524,15 @@ class AdminController extends Controller
         $months = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
         $monthDate = Carbon::now()->format('n');
         $yearDate = Carbon::now()->format('Y');
+        $groups = User::where('id', '!=', 1)->get();
+        $groupId = 0;
 
 
         if($request->all()){
             $statusBiweekly = filter_var($request->statusBiweekly, FILTER_VALIDATE_BOOLEAN);
             $monthDate = $request->monthDate;
             $yearDate = $request->yearDate;
+            $groupId =$request->groupId;
 
             if($statusBiweekly)
                 $selectDate = Carbon::parse($yearDate.'-'.$monthDate.'-15')->format('Y-m-d');
@@ -523,18 +541,21 @@ class AdminController extends Controller
 
         }
 
-        if(Auth::guard('admin')->id() == 1)
+        if(Auth::guard('admin')->id() != 1)
+            $groupId = Auth::guard('admin')->id();
+
+        if(Auth::guard('admin')->id() == 1 && $groupId == 0)
             $playersAll = Player::with(['claims' => function($q) use($selectDate) {
                 $q->whereDate('date', $selectDate);
             }])->get();
         else
-            $playersAll = Player::where('admin_id', Auth::guard('admin')->id())->with(['claims' => function($q) use($selectDate) {
+            $playersAll = Player::where('admin_id', $groupId)->with(['claims' => function($q) use($selectDate) {
                 $q->whereDate('date', $selectDate);
             }])->get();
 
 
         $statusMenu = "claimHistory";
-        return view('admin.listClaim', compact('statusMenu', 'selectDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
+        return view('admin.listClaim', compact('statusMenu', 'selectDate', 'playersAll', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate', 'groups', 'groupId'));
     }
 
     public function listGroup(){
@@ -598,33 +619,7 @@ class AdminController extends Controller
     }
 
     public function apiSLP(){
-        /* $admin = User::whereId(2)->with('players')->first();
-        dd($admin); */
-        $player = Player::where('email', 'angelgoitia1995@gmail.com')->with('group')->first();
 
-        (new User)->forceFill([
-            'email' => $player->group->email,
-        ])->notify(
-            new InfoGroup($player)
-        ); 
-        /* $now = Carbon::now()->format('Y-m-d');
-        $player = Player::where('wallet', '256500f59497d6d6ae797d974ef22232479e4ddb')->with(['totalSLP' => function($q) use($now) {
-            $q->where('date', "!=", $now)->orderBy('date','DESC'); 
-        }])->first();
-
-        app('App\Http\Controllers\Controller')->updateSlp($player); */
-        /* $listTotal = TotalSLP::all();
-
-        foreach($listTotal as $item){
-            if($item->daily <= 75)
-                $item->totalPlayer = $item->daily - ($item->daily * 0.15);
-            else 
-                $item->totalPlayer = $item->daily - ($item->daily * 0.2);
-
-            $item->save();
-        }
-
-        dd("completado"); */
     }
 
 }

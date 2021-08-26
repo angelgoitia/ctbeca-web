@@ -75,6 +75,28 @@
                                         @endif
                                     </select>
                                 </label>
+                                @if(Auth::guard('admin')->id() == 1)
+                                <label class="col-2"></label>
+                                <label class="col-sm-2 col-form-label">Grupo</label>
+                                <label class="content-select">
+                                    <select class="addMargin" name="groupId" id="groupId">
+
+                                        @if($groupId == 0)
+                                            <option value="0" selected>Todos</option>
+                                        @else
+                                            <option value="0" >Todos</option>
+                                        @endif
+
+                                        @foreach($groups as $group)
+                                            @if($groupId == $group->id)
+                                                <option value="{{$group->id}}" selected>{{$group->nameGroup}}</option>
+                                            @else
+                                                <option value="{{$group->id}}" >{{$group->nameGroup}}</option>
+                                            @endif
+                                        @endforeach
+                                    </select>
+                                </label>
+                                @endif
                             </div>
 
                             <div class="row">&nbsp;</div>
