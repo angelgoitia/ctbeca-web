@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Player;
-use App\Notifications\Reminder;
+use App\Notifications\ReminderNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -86,7 +86,7 @@ class Reminder extends Command
                     (new User)->forceFill([
                         'email' => $player->email,
                     ])->notify(
-                        new Reminder($player, $body)
+                        new ReminderNotification($player, $body)
                     ); 
                     
 

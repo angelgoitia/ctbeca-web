@@ -6,7 +6,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class Reminder extends Notification 
+class ReminderNotification extends Notification 
 {
     use Queueable;
     protected $player, $message;

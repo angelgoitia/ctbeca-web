@@ -41,7 +41,7 @@ class Axies extends Command
     public function handle()
     {
 
-        $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
+        $players = Player::with('animals')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->get();
 
