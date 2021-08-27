@@ -76,7 +76,7 @@ class AuthController extends Controller
             ]);
         }else{
             app('App\Http\Controllers\Controller')->updateSlp($player);
-            $player = Player::where("emailGame", request('email'))->with('totalSLP')->with('animals')->with('claimsApi')->first();
+            $player = Player::where("emailGame", request('email'))->with('totalSLP')->with('animals')->with('claimsApi')->with('claimsApi')->with('group')->first();
             return response()->json([
                 'statusCode' => 201,
                 'type'         => 1,
@@ -100,6 +100,7 @@ class AuthController extends Controller
     {
         $admins = User::where('id', '!=', 1)->where('id', '!=', $request->user()->id)->get();
         $now = Carbon::now()->format('Y-m-d');
+
         if($request->user()->id == 1)
             $players = Player::with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
@@ -133,8 +134,10 @@ class AuthController extends Controller
         $player = Player::whereId($request->user()->id)->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
+
         app('App\Http\Controllers\Controller')->updateSlp($player);
-        $player = Player::whereId($request->user()->id)->with('totalSLP')->with('animals')->with('claimsApi')->first();
+        
+        $player = Player::whereId($request->user()->id)->with('totalSLP')->with('animals')->with('claimsApi')->with('group')->first();
 
         return response()->json(['statusCode' => 201, 'player' => $player]);
     }

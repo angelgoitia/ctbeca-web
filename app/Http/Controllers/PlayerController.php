@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Session;
 use App\Animal;
 use App\Player;
+use App\Rate;
 use App\TotalSlp;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -80,7 +81,7 @@ class PlayerController extends Controller
             $totalSlp = 0;
             $player = Player::whereId(Auth::guard('web')->id())->with(['totalSLP' => function($q) use($years, $month, $i) {
                 $q->where("date", 'like', "%".Carbon::now()->format($years.'-'.$month.'-'.Carbon::now()->subDay(6-$i)->format('d'))."%"); 
-            }])->get();
+            }])->first();
 
             foreach($player->totalSLP as $slp){
                 $totalSlp += $slp->daily;
@@ -106,6 +107,24 @@ class PlayerController extends Controller
 
         $statusMenu = "profile";
         return view('player.profile', compact('statusMenu', 'player'));
+    }
+
+    public function rate(){
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()){
+            return redirect(route('player.login'));
+        }elseif (!Auth::guard('web')->check() && Auth::guard('admin')->check()){
+            return redirect(route('admin.dashboard'));
+        }
+
+        $player = Player::whereId(Auth::guard('web')->id())->first();
+        $rate = Rate::where('admin_id', $player->admin_id)->first();
+
+        if(!$rate)
+            $rate = Rate::where('admin_id', 1)->first();
+
+        $statusMenu = "rate";
+        return view('player.rate', compact('statusMenu', 'rate'));
+
     }
 
     public function listDaily(Request $request)

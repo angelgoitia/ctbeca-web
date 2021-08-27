@@ -96,7 +96,7 @@
     var listDay=[];
     
     $.ajax({
-        url: "{{route('admin.dataGraphic')}}", 
+        url: "{{route('player.dataGraphic')}}", 
         data: {"_token": "{{ csrf_token() }}", "player_id" : "{{$idPlayer}}"},
         type: "POST",
         dataType: 'json',
@@ -120,6 +120,7 @@
             dayTotalSlp.push(item.totalSlp);
         });
 
+        console.log(dayTotalSlp);
 
         dataDailySlpChart = {
           labels: date,

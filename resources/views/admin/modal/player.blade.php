@@ -84,9 +84,9 @@
                                         @endif
                                     @endforeach
                                     @if($playerSelect && $statusReference)
-                                        <option value="Otro" selected>Otro</option> 
+                                        <option value="Otro" selected> Otro</option> 
                                     @else
-                                        <option value="Otro">Otro</option>
+                                        <option value="Otro"> Otro</option>
                                     @endif
                                 </select>
                             </label> 
@@ -177,6 +177,21 @@
                     <div class="row justify-content-md-center">
                         <label class="col-8 col-form-label">(La contraseña se enviará al jugador por medio de Correo Electrónico)</label>
                     </div>
+
+                    <div class="mb-3 row">
+                        <label class="col-sm-4 col-form-label">Fecha de reclamo </label>
+                        <div class="col-sm-4">
+                            @php
+                                use Carbon\Carbon;
+                            @endphp
+                            <div class="input-daterange input-group" id="datepicker-admin">
+                                <input type="text" class="form-control" name="dateClaim" placeholder="Fecha de Reclamo" value="{{$playerSelect? Carbon::parse(str_replace('/','-',$playerSelect->dateClaim))->format('d/m/Y') : Carbon::now()->format('d/m/Y')}}" autocomplete="off" required/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-md-center">
+                        <label class="col-8 col-form-label">Si el becado es nuevo selecciona la fecha de hoy, sino debe seleccionar el dia 15 o ultimo.  </label>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -232,6 +247,13 @@
                 $("#referenceOther").prop('required',false);
                 $('#referenceOther').addClass('referenceHide');
             }
+        });
+
+        $('#datepicker-admin').datepicker({
+            orientation: "top auto",
+            language: "es",
+            autoclose: true,
+            todayHighlight: true
         });
 
     });

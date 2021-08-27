@@ -15,6 +15,9 @@
     <div class="loader"></div>
     <div class="main-panel">
       @include('auth.navbar')
+        <div class="justify-content-center has-success marginTopAdmin" id="row">
+            @include('admin.widget.rate')
+        </div>
         <div class="tableShow">
             <table id="table_id" class="table table-bordered display" style="width:100%;">
                 <thead>
@@ -37,13 +40,13 @@
                         <th scope="row">{{ $rate->id }}</th>
                         <td>{{ $rate->admin->nameGroup }}</td>
                         <td> <img src="{{ asset('images/less_equal.png') }}" width="20px"> </td>
-                        <td>{{ $rate->lessSlp }} %</td>
+                        <td>{{ $rate->lessSlp }} </td>
                         <td><img src="{{ asset('images/right-arrow.png') }}" width="30px"></td>
-                        <td>{{$rate->lessPercentage}} </td>
+                        <td>{{$rate->lessPercentage}} %</td>
                         <td> <img src="{{ asset('images/greater.png') }}" width="20px"> </td>
-                        <td>{{ $rate->greaterSlp }} %</td>
+                        <td>{{ $rate->greaterSlp }} </td>
                         <td><img src="{{ asset('images/right-arrow.png') }}" width="30px"></td>
-                        <td>{{$rate->greaterPercentage}} </td>
+                        <td>{{$rate->greaterPercentage}} %</td>
                     </tr>
                     @endforeach
                 </tbody>

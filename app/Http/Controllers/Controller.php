@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Player;
+use App\Rate;
 use App\TotalSlp;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -33,6 +34,11 @@ class Controller extends BaseController
         $resultApi = json_decode(curl_exec($ch), true);
         curl_close($ch); 
 
+        $rate  = Rate::where('admin_id', $player->group->id)->first();
+
+        if(!$rate)
+            $rate  = Rate::where('admin_id', 1)->first();
+
         if($resultApi && isset($resultApi['total_slp'])){
             $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
             $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
@@ -46,7 +52,7 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
+                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
             else
@@ -58,7 +64,7 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
+                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
                 

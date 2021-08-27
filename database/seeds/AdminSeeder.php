@@ -17,6 +17,7 @@ class AdminSeeder extends Seeder
                 array(
                     'id'        => 1,
                     'name'      => 'Administrador',
+                    'nameGroup' => 'Administrador',
                     'email'     => 'ctbeca@admin.com',
                     'password'  => bcrypt("Ee81887127*"),
                     'created_at'=> date('Y-m-d H:m:s'),

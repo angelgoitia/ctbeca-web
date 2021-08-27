@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bookshop/datatables.min.css') }}"/>
     @include('admin.bookshop')
     <script type="text/javascript" src="{{ asset('js/bookshop/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/locales/bootstrap-datepicker.es.min.js') }}"></script>
 </head>
 <body class="body-admin">
 @include('auth.menu')
@@ -104,8 +105,12 @@
                 data: {"_token": "{{ csrf_token() }}", "id" : id},
                 type: "POST",
             }).done(function(data){
-                $('#showPlayer').html(data.html);
-                $('#playerModal').modal('show'); 
+                if(data.statusCode == 201){
+                    $('#showPlayer').html(data.html);
+                    $('#playerModal').modal('show'); 
+                }else if(data.statusCode == 400){
+                    alertify.error(data.message);
+                }
             }).fail(function(result){
                 alertify.error('Sin Conexión, intentalo de nuevo mas tardes!');
                 $('#playerModal').modal('hide'); 

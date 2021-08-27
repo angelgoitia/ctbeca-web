@@ -222,6 +222,7 @@ class AdminController extends Controller
                     'passwordGame'  => bcrypt($request->passwordGame),
                     'wallet'        => str_replace("ronin:","", $request->wallet),
                     'admin_id'      => intval($request->group),
+                    'dateClaim'     => Carbon::createFromFormat('d/m/Y', $request->dateClaim)->format('Y-m-d'),
                 ]
             );
         }else{
@@ -234,6 +235,7 @@ class AdminController extends Controller
             $player->emailGame     = $request->emailGame;
             $player->passwordGame  = bcrypt($request->passwordGame);
             $player->admin_id      = intval($request->group);
+            $player->dateClaim     = Carbon::createFromFormat('d/m/Y', $request->dateClaim)->format('Y-m-d');
             $player->save();
         }
         
@@ -302,42 +304,42 @@ class AdminController extends Controller
                $total =  $resultApi['available_axies']['total'];
            }
 
+           if(isset($resultApi['results']) || isset($resultApi['available_axies']['results'])){
+                foreach($player->animals as $key => $animal){
 
-
-           foreach($player->animals as $key => $animal){
-
-               if($total < count($player->animals) && $count > $total)
-                   $animal->delete();
-               else{
-                   $name = explode(" ", $results[$key]['name']);
-                   $animal->code = $results[$key]['id']; 
-                   $animal->name = $name[0]; 
-                   $animal->nomenclature = $name[1]; 
-                   $animal->type = $results[$key]['class'];
-                   $animal->image = $results[$key]['image']; 
-                   $animal->save();
-               }
-
-               $count++;
+                    if($total < count($player->animals) && $count > $total)
+                        $animal->delete();
+                    else{
+                        $name = explode(" ", $results[$key]['name']);
+                        $animal->code = $results[$key]['id']; 
+                        $animal->name = $name[0]; 
+                        $animal->nomenclature = $name[1]; 
+                        $animal->type = $results[$key]['class'];
+                        $animal->image = $results[$key]['image']; 
+                        $animal->save();
+                    }
+    
+                    $count++;
+                }
+    
+                if($count <= $total){
+                    for ($i = $count-1; $i < $total; $i++){
+                        $name = explode(" ", $results[$i]['name']);
+                        Animal::create([
+                            'player_id'     => $player->id,
+                            'code'          => $results[$i]['id'],
+                            'name'          => $name[0],
+                            'nomenclature'  => $name[1],
+                            'type'          => $results[$i]['class'],
+                            'image'         => $results[$i]['image'],
+                        ]);
+                    }
+                }
+    
+    
+                if($total > 0)
+                    break;
            }
-
-           if($count <= $total){
-               for ($i = $count-1; $i < $total; $i++){
-                   $name = explode(" ", $results[$i]['name']);
-                   Animal::create([
-                       'player_id'     => $player->id,
-                       'code'          => $results[$i]['id'],
-                       'name'          => $name[0],
-                       'nomenclature'  => $name[1],
-                       'type'          => $results[$i]['class'],
-                       'image'         => $results[$i]['image'],
-                   ]);
-               }
-           }
-
-
-           if($total > 0)
-               break;
 
        }
 
@@ -355,8 +357,12 @@ class AdminController extends Controller
         $playerSelect = Player::whereId($request->id)->with('group')->first();
         $players = Player::all();
         $groups = User::where("id", '!=', 1)->get();
+
+        if(count($groups) == 0)
+            return response()->json(array('statusCode' => 400, 'message'=>'Deben crear un nuevo grupo'));
+
         $returnHTML=view('admin.modal.player', compact('playerSelect', 'players', 'groups'))->render();
-        return response()->json(array('html'=>$returnHTML));
+        return response()->json(array('statusCode' => 201, 'html'=>$returnHTML));
     }
 
     public function listDaily(Request $request)
@@ -480,14 +486,18 @@ class AdminController extends Controller
     }
 
     public function rates(){
-        $rates = Rate::with("admin")->get();
+        $rate = Rate::where('admin_id',1)->first();
+        $rates = Rate::where('admin_id', '!=', 1)->with("admin")->get();
         $statusMenu = "rates";
-        return view('admin.listRates', compact('statusMenu', 'rates'));
+        return view('admin.listRates', compact('statusMenu', 'rate', 'rates'));
     }
 
     public function rate(){
         $admin = Auth::guard('admin')->id();
         $rate = Rate::where('admin_id', $admin)->with("admin")->first();
+
+        if(!$rate)
+            $rate = Rate::where('admin_id', 1)->with("admin")->first();
 
         $statusMenu = "rate";
         return view('admin.rate', compact('statusMenu', 'rate'));
@@ -505,6 +515,9 @@ class AdminController extends Controller
                 'greaterPercentage' => $request->greaterPercentage,
             ]
         );
+
+        if(Auth::guard('admin')->id() == 1)
+            return redirect()->route('admin.rates');
 
         return redirect()->route('admin.rate');
     }
@@ -526,6 +539,13 @@ class AdminController extends Controller
         $yearDate = Carbon::now()->format('Y');
         $groups = User::where('id', '!=', 1)->get();
         $groupId = 0;
+
+
+        if(Carbon::now()->format('d') < 15){
+            $statusBiweekly = false;
+            $monthDate = Carbon::now()->subMonth()->format('n');
+            $selectDate = Carbon::now()->subMonth()->format('Y-m-d');
+        }
 
 
         if($request->all()){

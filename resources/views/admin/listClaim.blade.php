@@ -183,15 +183,6 @@
                 },
             });
 
-            $('#datepicker-admin').datepicker({
-                orientation: "bottom auto",
-                language: "es",
-                endDate: new Date(),
-                language: "es",
-                autoclose: true,
-                todayHighlight: true
-            });
-
         });
         $(".main-panel").perfectScrollbar('update');
 

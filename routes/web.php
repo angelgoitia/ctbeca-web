@@ -52,11 +52,12 @@ Route::post('logout/', 'AdminController@logout')->name('logout');
 
 Route::group(['middleware'=>'web'], function() {
     Route::get('/becado/inicio/', 'PlayerController@dashboard')->name('player.dashboard');
-    Route::post('/player/dataGraphic', 'AdminController@dataGraphic')->name('admin.dataGraphic');
+    Route::post('/becado/dataGraphic', 'PlayerController@dataGraphic')->name('player.dataGraphic');
     Route::get('/becado/perfil/', 'PlayerController@profile')->name('player.profile');
     Route::post('/becado/historial/juego', 'PlayerController@listDaily')->name('player.listDaily');
     Route::get('/becado/historial/reclamos', 'PlayerController@listClaim')->name('player.listClaim');
     Route::post('/becado/historial/reclamos', 'PlayerController@listClaim')->name('player.listClaim');
+    Route::get('/becado/tasa', 'PlayerController@rate')->name('player.rate');
 });
 
 Route::group(['middleware'=>'admin'], function() {

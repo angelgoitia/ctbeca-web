@@ -24,12 +24,6 @@
                 <p>Becados</p>
               </a>
             </li>
-            <li class="nav-item" id="nav-gameHistory">
-              <a class="nav-link" href="{{route('admin.listDaily')}}">
-                <i class="material-icons">description</i>
-                <p>Historial Axie Infinity</p>
-              </a>
-            </li>
             @if(Auth::guard('admin')->id() == 1)
               <li class="nav-item" id="nav-rates">
                 <a class="nav-link" href="{{route('admin.rates')}}">
@@ -51,6 +45,12 @@
               </a>
             </li>
             @endif
+            <li class="nav-item" id="nav-gameHistory">
+              <a class="nav-link" href="{{route('admin.listDaily')}}">
+                <i class="material-icons">description</i>
+                <p>Historial Axie Infinity</p>
+              </a>
+            </li>
             <li class="nav-item" id="nav-claimHistory">
               <a class="nav-link" href="{{route('admin.listClaim')}}">
                 <i class="material-icons">description</i>
@@ -68,6 +68,12 @@
               <a class="nav-link" href="{{route('player.profile')}}">
                 <i class="material-icons">person</i>
                 <p>Perfil</p>
+              </a>
+            </li>
+            <li class="nav-item" id="nav-rate">
+              <a class="nav-link" href="{{route('player.rate')}}">
+                <i class="material-icons">attach_money</i>
+                <p>Tasa</p>
               </a>
             </li>
             <li class="nav-item" id="nav-gameHistory">

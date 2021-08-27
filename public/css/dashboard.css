@@ -259,8 +259,20 @@ th:first-child .outerDiv {
     color: white;
 }
 
+.marginTopAdmin{
+    margin-top: 5% !important; 
+}
+
 .marginTop{
     margin-top: 15% !important;
+}
+
+.colPercentage{
+    margin: auto !important;
+}
+
+.colPercentage label {
+    font-size: 18px !important;
 }
 
 

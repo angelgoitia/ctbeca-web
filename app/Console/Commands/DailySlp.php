@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Notifications\InfoGroup;
 use App\Player;
+use App\Rate;
 use App\TotalSlp;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -62,6 +63,11 @@ class DailySlp extends Command
             $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
             $now = Carbon::now()->format('Y-m-d');
 
+            $rate  = Rate::where('admin_id', $player->group->id)->first();
+
+            if(!$rate)
+                $rate  = Rate::where('admin_id', 1)->first();
+
             if($resultApi && isset($resultApi['total_slp']) && $now == $last_claim){
                 $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
                 $totaldaily = intval($resultApi['last_claim_amount']) - $dailyYesterday;
@@ -77,7 +83,7 @@ class DailySlp extends Command
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
+                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
                 $status++;
@@ -92,7 +98,7 @@ class DailySlp extends Command
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= 75 ? $totaldaily - ($totaldaily * 0.15) : $totaldaily - ($totaldaily * 0.2), 
+                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100),
                     ]
                 );
                 $status++;
