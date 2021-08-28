@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Player;
-use App\TotalSlp;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
