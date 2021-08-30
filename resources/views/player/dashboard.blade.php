@@ -75,7 +75,7 @@
                   <div class="ct-chart" id="dailySlpChart"></div>
                 </div>
                 <div class="card-body">
-                  <h4 class="card-title">LSP Diarias</h4>
+                  <h4 class="card-title">SLP Diarias</h4>
                 </div>
                 <div class="card-footer">
                   <div class="stats">
