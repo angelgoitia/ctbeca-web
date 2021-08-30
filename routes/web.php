@@ -55,6 +55,7 @@ Route::group(['middleware'=>'web'], function() {
     Route::post('/becado/dataGraphic', 'PlayerController@dataGraphic')->name('player.dataGraphic');
     Route::get('/becado/perfil/', 'PlayerController@profile')->name('player.profile');
     Route::get('/becado/historial/juego', 'PlayerController@listDaily')->name('player.listDaily');
+    Route::post('/becado/historial/juego', 'PlayerController@listDaily')->name('player.listDaily');
     Route::get('/becado/historial/reclamos', 'PlayerController@listClaim')->name('player.listClaim');
     Route::post('/becado/historial/reclamos', 'PlayerController@listClaim')->name('player.listClaim');
     Route::get('/becado/tasa', 'PlayerController@rate')->name('player.rate');
