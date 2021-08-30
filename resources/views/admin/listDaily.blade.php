@@ -128,7 +128,7 @@
                             @endphp
                         @endWhile
                         <th scope="col">Acumulado</th>
-                        <th scope="col">Pago</th>
+                        <th scope="col">Comisión Becado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -140,19 +140,19 @@
                             <td>{{$player->name}}</td>
                             @while($writeDate <= $endDate)
 
-                                @foreach($player->totalSlp as $item)
+                                @foreach($player->totalSlp as $key => $item)
                                     @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        <td>{{$item->daily}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
+                                        <td>{{$item->daily}}</td>
                                         @php
                                             $status = true;
                                             $totalUnclaim += $item->daily;
-                                            $totalPlayer += $item->totalPlayer;
+                                            $totalPlayer += ($item->daily - $item->totalManager);
                                         @endphp
                                     @endif
                                 @endforeach
 
                                 @if(!$status)
-                                    <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
+                                    <td>0</td>
                                 @endif
                                 @php
                                     $writeDate = Carbon::parse($writeDate)->addDay()->format('Y-m-d');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Player;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -155,5 +156,14 @@ class AuthController extends Controller
 
         return response()->json(['statusCode' => 201]);
 
+    }
+
+    public function versionApp(Request $request)
+    {
+        $version = DB::table("version")->whereId(1)->first();
+        return response()->json([
+            'statusCode' => 201,
+            'data' => $version,
+        ]);
     }
 }

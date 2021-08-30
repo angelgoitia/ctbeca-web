@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Claim;
 use App\Player;
 use App\Rate;
 use App\TotalSlp;
@@ -52,7 +53,7 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100), 
+                        'totalManager'   => $totaldaily <= $rate->lessSlp ? (($totaldaily * $rate->lessPercentage) / 100) : (($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
             else
@@ -64,11 +65,72 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100), 
+                        'totalManager'   => $totaldaily <= $rate->lessSlp ? (($totaldaily * $rate->lessPercentage) / 100) : (($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
                 
         }
 
+    }
+
+    public function getPriceSlp(){
+        $urlApi = [
+            'https://api.binance.com', 'https://api1.binance.com', 'https://api2.binance.com', 'https://api3.binance.com'
+        ];
+
+        foreach ($urlApi as $api){
+
+            $ch = curl_init($api.'/api/v3/ticker/price?symbol=SLPUSDT');
+            
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array( 
+                "Content-Type: application/json",
+                "X-Requested-With: XMLHttpRequest",
+            ));
+
+            $resultApi = json_decode(curl_exec($ch), true);
+            curl_close($ch);
+
+            if($resultApi && $resultApi['symbol'] == 'SLPUSDT'){
+                return floatval($resultApi['price']);
+            }
+           
+        }
+
+        return 0;
+    }
+
+    public function claimPlayer($playerId, $totalClaim){
+        $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
+        $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
+        $totalPlayer = 0;
+        $totalManager = 0;
+
+        if(Carbon::now()->format('d') > 15){
+            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+
+        $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
+            $q->whereDate('date', ">=",$startDate)
+                ->whereDate('date', "<=",$endDate);
+        }])->first();
+
+        foreach($player->totalSLP as $slp){
+            $totalPlayer += ($slp-> daily - $slp-> totalManager);
+            $totalManager += $slp-> totalManager;
+        }
+
+        Claim::Create(
+            [
+                'player_id'     => $player->id,
+                'date'          => Carbon::now()->format('Y-m-d'),
+                'total'         => $totalClaim,
+                'totalPlayer'   => $totalPlayer,
+                'totalManager'  => $totalManager,
+            ]
+        );
     }
 }

@@ -84,8 +84,8 @@
                     @foreach($player->totalSLP as $slp)
                         <tr>
                             <th>{{$slp->date}}</th>
-                            <th>{{$slp->daily}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
-                            <th>{{$slp->total}} <img src="{{ asset('images/SLP.png') }}" width="20px"></th>
+                            <th>{{$slp->daily}}</th>
+                            <th>{{$slp->total}}</th>
                         </tr>
                     @endforeach
                 </tbody>

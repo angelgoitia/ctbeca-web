@@ -26,6 +26,19 @@
                   </div>
                   <p class="card-category">Total</p>
                   <h3 class="card-title">{{$totalSlpToday}} SLP</h3>
+                  <div class="row justify-content-between">
+                    <div class="col" style="text-align: center;">
+                      @if($priceSlp == 0)
+                        <label>Inténtalo de nuevo más tarde</label>
+                      @else
+                        <label>1 SLP <img src="{{ asset('images/right-arrow.png') }}" width="20px"> $ {{$priceSlp}} </label>
+                      @endif
+                    </div>
+                    <div class="col">
+                      <label> $ {{$totalSlpToday * $priceSlp}} </label>
+                    </div>
+                  </div>
+
                 </div>
                 <div class="card-footer">
                     <div class="stats">

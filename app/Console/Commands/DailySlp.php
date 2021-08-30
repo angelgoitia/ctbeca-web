@@ -83,9 +83,12 @@ class DailySlp extends Command
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100), 
+                        'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
+
+                app('App\Http\Controllers\Controller')->claimPlayer($player->id, intval($resultApi['total_slp']));
+                
                 $status++;
             }else if($resultApi && isset($resultApi['total_slp'])){
                 $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
@@ -98,7 +101,7 @@ class DailySlp extends Command
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? $totaldaily - (($totaldaily * $rate->lessPercentage) / 100) : $totaldaily - (($totaldaily * $rate->greaterPercentage) / 100),
+                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? (($totaldaily * $rate->lessPercentage) / 100) : (($totaldaily * $rate->greaterPercentage) / 100),
                     ]
                 );
                 $status++;

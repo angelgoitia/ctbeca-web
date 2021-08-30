@@ -45,6 +45,8 @@ class PlayerController extends Controller
 
         app('App\Http\Controllers\Controller')->updateSlp($player);
 
+        $priceSlp = app('App\Http\Controllers\Controller')->getPriceSlp();
+
         $totalSlpToday = 0;
         $totalSlpYesterday = 0;
         $totalSlpUnclaimed = 0;
@@ -68,7 +70,7 @@ class PlayerController extends Controller
 
         $statusMenu = "dashboard";
         $idPlayer = 0;
-        return view('player.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpUnclaimed", "statusMenu" , "idPlayer"));
+        return view('player.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpUnclaimed", "statusMenu" , "idPlayer", "priceSlp"));
     }
 
     public function dataGraphic(Request $request)

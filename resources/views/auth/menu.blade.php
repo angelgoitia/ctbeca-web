@@ -70,12 +70,12 @@
                 <p>Perfil</p>
               </a>
             </li>
-            <li class="nav-item" id="nav-rate">
+            <!-- <li class="nav-item" id="nav-rate">
               <a class="nav-link" href="{{route('player.rate')}}">
                 <i class="material-icons">attach_money</i>
                 <p>Tasa</p>
               </a>
-            </li>
+            </li> -->
             <li class="nav-item" id="nav-gameHistory">
               <a class="nav-link" href="{{route('player.listDaily')}}">
                 <i class="material-icons">description</i>

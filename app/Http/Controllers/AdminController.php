@@ -67,6 +67,8 @@ class AdminController extends Controller
 
         app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
 
+        $priceSlp = app('App\Http\Controllers\Controller')->getPriceSlp();
+
         $totalSlpToday = 0;
         $totalSlpYesterday= 0;
         $totalSlpUnclaimed = 0;
@@ -94,15 +96,15 @@ class AdminController extends Controller
                     $totalSlpUnclaimed += $slp-> daily;
 
                 $totalSlpAll += $slp-> daily;
-                $totalSlpPlayer += $slp-> totalPlayer;
-                $totalSlpManager += ($slp-> daily - $slp-> totalPlayer);
+                $totalSlpPlayer += ($slp-> daily - $slp->totalManager);
+                $totalSlpManager += $slp->totalManager;
             }
  
         }
 
         $statusMenu = "dashboard";
         $idPlayer = 0;
-        return view('admin.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpUnclaimed", "totalSlpManager", "totalSlpPlayer", "totalSlpAll", "statusMenu" , "idPlayer"));
+        return view('admin.dashboard',compact("totalSlpToday", "totalSlpYesterday", "totalSlpUnclaimed", "totalSlpManager", "totalSlpPlayer", "totalSlpAll", "statusMenu" , "idPlayer", 'priceSlp'));
     }
 
     public function dataGraphic(Request $request)
@@ -278,7 +280,7 @@ class AdminController extends Controller
 
         $urlApi = [
             'https://api.axie.com.ph/get-axies/0x', 'https://axie-proxy.secret-shop.buzz/_axies/0x'
-       ];
+        ];
 
        foreach ($urlApi as $key => $api){
            $results = [];
@@ -482,6 +484,22 @@ class AdminController extends Controller
             ]
         );
 
+        if(Carbon::now()->format('d') == 15 || Carbon::now()->format('d') == Carbon::now()->endOfMonth()->format('d')){
+            
+            if(Carbon::parse($request->date)->format('d') <= 15 || (Carbon::parse($request->date)->format('d') > 15 && Carbon::parse($request->date)->endOfMonth()->format('d') >28 ))
+                $day = 15;
+            else if (Carbon::parse($request->date)->format('d') > 15 && Carbon::parse($request->date)->endOfMonth()->format('d') == 28)
+                $day = 13;
+
+            $date = Carbon::parse($player->dateClaim);
+            $now = Carbon::now();
+
+            $diff = $date->diffInDays($now);
+            if($diff >= $day && $player->tokenFCM){
+                app('App\Http\Controllers\Controller')->claimPlayer($player->id, $totaldaily);
+            }
+        }
+
         return redirect()->route('admin.listDaily');
     }
 
@@ -639,7 +657,6 @@ class AdminController extends Controller
     }
 
     public function apiSLP(){
-
     }
 
 }

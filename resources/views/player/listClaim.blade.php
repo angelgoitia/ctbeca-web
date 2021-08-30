@@ -90,9 +90,9 @@
                         <td>{{$date}}</td>
                         @foreach($player->claims as $item)
                             @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($date)->format('Y-m-d') )
-                                <td>{{$item->total}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
-                                <td>{{$item->totalManager}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
-                                <td>{{$item->totalPlayer}} SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
+                                <td>{{$item->total}}</td>
+                                <td>{{$item->totalManager}}</td>
+                                <td>{{$item->totalPlayer}}</td>
                                 @php
                                     $status = true;
                                 @endphp
@@ -100,9 +100,9 @@
                         @endforeach
 
                         @if(!$status)
-                            <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
-                            <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
-                            <td>0 SLP <img src="{{ asset('images/SLP.png') }}" width="20px"></td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
                         @endif
                         @php
                             $status = false;

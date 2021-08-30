@@ -50,6 +50,10 @@ Route::post('player/login/', 'PlayerController@login')->name('formPlayer.login')
 Route::get('logout/', 'AdminController@logout')->name('logout');
 Route::post('logout/', 'AdminController@logout')->name('logout');
 
+Route::get('privacy/', function(){
+    return view('privacy');
+});
+
 Route::group(['middleware'=>'web'], function() {
     Route::get('/becado/inicio/', 'PlayerController@dashboard')->name('player.dashboard');
     Route::post('/becado/dataGraphic', 'PlayerController@dataGraphic')->name('player.dataGraphic');
