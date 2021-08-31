@@ -57,11 +57,11 @@ class AdminController extends Controller
         $now = Carbon::now()->format('Y-m-d');
 
         if(Auth::guard('admin')->id() == 1)
-            $players = Player::with(['totalSLP' => function($q) use($now) {
+            $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
         else
-            $players = Player::where('admin_id', Auth::guard('admin')->id())->with(['totalSLP' => function($q) use($now) {
+            $players = Player::where('admin_id', Auth::guard('admin')->id())->with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
 
@@ -160,6 +160,14 @@ class AdminController extends Controller
     {
         $status = false ;
         $errorMsg;
+
+        $rate = Rate::whereId(1)->first();
+
+        if(!$rate){
+            $status = true;
+            $errorMsg = "Deben crear una tasa";
+        }
+
         if(empty($request->playerSelect))
         {
             if(Player::where('wallet', str_replace("ronin:","", $request->wallet))->first())
@@ -360,8 +368,14 @@ class AdminController extends Controller
         $players = Player::all();
         $groups = User::where("id", '!=', 1)->get();
 
+        $rate = Rate::whereId(1)->first();
+
+        if(!$rate)
+            return response()->json(array('statusCode' => 400, 'message'=>'Deben crear una tasa'));
+
         if(count($groups) == 0)
             return response()->json(array('statusCode' => 400, 'message'=>'Deben crear un nuevo grupo'));
+
 
         $returnHTML=view('admin.modal.player', compact('playerSelect', 'players', 'groups'))->render();
         return response()->json(array('statusCode' => 201, 'html'=>$returnHTML));

@@ -23,7 +23,7 @@ class AuthController extends Controller
         $credentials = request(['email', 'password']);
 
         $user = User::where("email", request('email'))->first();
-        $player = Player::where("emailGame", request('email'))->with(['totalSLP' => function($q) use($now) {
+        $player = Player::where("emailGame", request('email'))->with('group')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
 
@@ -46,11 +46,11 @@ class AuthController extends Controller
         if($user){
             $admins = User::where('id', '!=', 1)->where('id', '!=', $user->id)->get();
             if($user->id == 1)
-                $players = Player::with(['totalSLP' => function($q) use($now) {
+                $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                     $q->where('date', "!=", $now)->orderBy('date','DESC'); 
                 }])->get();
             else
-                $players = Player::where('admin_id', $user->id)->with(['totalSLP' => function($q) use($now) {
+                $players = Player::where('admin_id', $user->id)->with('group')->with(['totalSLP' => function($q) use($now) {
                     $q->where('date', "!=", $now)->orderBy('date','DESC'); 
                 }])->get();
 
@@ -103,11 +103,11 @@ class AuthController extends Controller
         $now = Carbon::now()->format('Y-m-d');
 
         if($request->user()->id == 1)
-            $players = Player::with(['totalSLP' => function($q) use($now) {
+            $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
         else
-            $players = Player::where('admin_id', $request->user()->id)->with(['totalSLP' => function($q) use($now) {
+            $players = Player::where('admin_id', $request->user()->id)->with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
 
@@ -132,7 +132,7 @@ class AuthController extends Controller
     public function player(Request $request)
     {
         $now = Carbon::now()->format('Y-m-d');
-        $player = Player::whereId($request->user()->id)->with(['totalSLP' => function($q) use($now) {
+        $player = Player::whereId($request->user()->id)->with('group')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
 

@@ -63,7 +63,10 @@ class DailySlp extends Command
             $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
             $now = Carbon::now()->format('Y-m-d');
 
-            $rate  = Rate::where('admin_id', $player->group->id)->first();
+            $rate;
+
+            if($player->group)
+                $rate  = Rate::where('admin_id', $player->group->id)->first();
 
             if(!$rate)
                 $rate  = Rate::where('admin_id', 1)->first();

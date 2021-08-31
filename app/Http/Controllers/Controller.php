@@ -35,7 +35,10 @@ class Controller extends BaseController
         $resultApi = json_decode(curl_exec($ch), true);
         curl_close($ch); 
 
-        $rate  = Rate::where('admin_id', $player->group->id)->first();
+        $rate;
+
+        if($player->group)
+            $rate  = Rate::where('admin_id', $player->group->id)->first();
 
         if(!$rate)
             $rate  = Rate::where('admin_id', 1)->first();

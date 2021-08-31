@@ -39,7 +39,7 @@ class PlayerController extends Controller
         }
 
         $now = Carbon::now()->format('Y-m-d');
-        $player = Player::whereId(Auth::guard('web')->id())->with(['totalSLP' => function($q) use($now) {
+        $player = Player::whereId(Auth::guard('web')->id())->with('group')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
 
