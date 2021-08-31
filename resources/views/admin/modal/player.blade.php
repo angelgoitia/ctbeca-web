@@ -55,7 +55,7 @@
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label">Telegram</label>
                         <div class="col-sm-4">
-                            <input type="text" class="form-control" id="telegram" name="telegram" placeholder="@ctbeca" pattern="[@][A-Za-z0-9_]{5,20}" value="{{$playerSelect? $playerSelect->telegram : ''}}" autocomplete="off" required>
+                            <input type="text" class="form-control" id="telegram" name="telegram" placeholder="@ctbeca" pattern="(([@][A-Za-z0-9_]{5,50})|((0414|0424|0412|0416|0426)[0-9]{7}))" value="{{$playerSelect? $playerSelect->telegram : ''}}" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="mb-3 row">
@@ -252,6 +252,7 @@
         $('#datepicker-admin').datepicker({
             orientation: "top auto",
             language: "es",
+            endDate: new Date(),
             autoclose: true,
             todayHighlight: true
         });

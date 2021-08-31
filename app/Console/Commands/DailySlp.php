@@ -60,7 +60,6 @@ class DailySlp extends Command
             $resultApi = json_decode(curl_exec($ch), true);
             curl_close($ch); 
 
-            $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
             $now = Carbon::now()->format('Y-m-d');
 
             $rate;
@@ -71,43 +70,46 @@ class DailySlp extends Command
             if(!$rate)
                 $rate  = Rate::where('admin_id', 1)->first();
 
-            if($resultApi && isset($resultApi['total_slp']) && $now == $last_claim){
-                $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
-                $totaldaily = intval($resultApi['last_claim_amount']) - $dailyYesterday;
-                
-                $player->dateClaim = $now;
-                $player->save();
-
-                TotalSlp::updateOrCreate(
-                    [
-                        'player_id'     => $player->id,
-                        'date'          => $now,
-                    ],
-                    [
-                        'total'         => intval($resultApi['total_slp']),
-                        'daily'         => $totaldaily,
-                        'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
-                    ]
-                );
-
-                app('App\Http\Controllers\Controller')->claimPlayer($player->id, intval($resultApi['total_slp']));
-                
-                $status++;
-            }else if($resultApi && isset($resultApi['total_slp'])){
-                $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
-                $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
-                TotalSlp::updateOrCreate(
-                    [
-                        'player_id'     => $player->id,
-                        'date'          => $now,
-                    ],
-                    [
-                        'total'         => intval($resultApi['total_slp']),
-                        'daily'         => $totaldaily,
-                        'totalPlayer'   => $totaldaily <= $rate->lessSlp ? (($totaldaily * $rate->lessPercentage) / 100) : (($totaldaily * $rate->greaterPercentage) / 100),
-                    ]
-                );
-                $status++;
+            if($resultApi && isset($resultApi['total_slp']) && isset($resultApi['last_claim_timestamp'])){
+                $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
+                if($now == $last_claim){
+                    $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
+                    $totaldaily = intval($resultApi['last_claim_amount']) - $dailyYesterday;
+                    
+                    $player->dateClaim = $now;
+                    $player->save();
+    
+                    TotalSlp::updateOrCreate(
+                        [
+                            'player_id'     => $player->id,
+                            'date'          => $now,
+                        ],
+                        [
+                            'total'         => intval($resultApi['total_slp']),
+                            'daily'         => $totaldaily,
+                            'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
+                        ]
+                    );
+    
+                    app('App\Http\Controllers\Controller')->claimPlayer($player->id, intval($resultApi['total_slp']));
+                    
+                    $status++;
+                }else{
+                    $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
+                    $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
+                    TotalSlp::updateOrCreate(
+                        [
+                            'player_id'     => $player->id,
+                            'date'          => $now,
+                        ],
+                        [
+                            'total'         => intval($resultApi['total_slp']),
+                            'daily'         => $totaldaily,
+                            'totalPlayer'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100),
+                        ]
+                    );
+                    $status++;
+                }
             }else {
 
                 (new User)->forceFill([

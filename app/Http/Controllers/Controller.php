@@ -34,7 +34,7 @@ class Controller extends BaseController
         
         $resultApi = json_decode(curl_exec($ch), true);
         curl_close($ch); 
-
+        
         $rate;
 
         if($player->group)
@@ -44,6 +44,7 @@ class Controller extends BaseController
             $rate  = Rate::where('admin_id', 1)->first();
 
         if($resultApi && isset($resultApi['total_slp'])){
+            $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
             $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
             $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
 
@@ -56,7 +57,7 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalManager'   => $totaldaily <= $rate->lessSlp ? (($totaldaily * $rate->lessPercentage) / 100) : (($totaldaily * $rate->greaterPercentage) / 100), 
+                        'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
             else
@@ -68,9 +69,12 @@ class Controller extends BaseController
                     [
                         'total'         => intval($resultApi['total_slp']),
                         'daily'         => $totaldaily,
-                        'totalManager'   => $totaldaily <= $rate->lessSlp ? (($totaldaily * $rate->lessPercentage) / 100) : (($totaldaily * $rate->greaterPercentage) / 100), 
+                        'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
                 );
+            
+            if($now == $last_claim)
+                $this->claimPlayer($player->id, intval($resultApi['total_slp']));
                 
         }
 
@@ -126,10 +130,12 @@ class Controller extends BaseController
             $totalManager += $slp-> totalManager;
         }
 
-        Claim::Create(
+        Claim::updateOrCreate(
             [
                 'player_id'     => $player->id,
                 'date'          => Carbon::now()->format('Y-m-d'),
+            ],
+            [
                 'total'         => $totalClaim,
                 'totalPlayer'   => $totalPlayer,
                 'totalManager'  => $totalManager,
