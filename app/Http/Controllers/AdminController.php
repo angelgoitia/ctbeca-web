@@ -92,7 +92,7 @@ class AdminController extends Controller
                 if($yesteday == Carbon::parse($slp->date)->format('Y-m-d'))
                     $totalSlpYesterday += $slp-> daily;
 
-                if(Carbon::parse($slp->date)->format('Y-m-d') >= $dateClaim && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
+                if(Carbon::parse($slp->date)->format('Y-m-d') > $dateClaim && Carbon::parse($slp->date)->format('Y-m-d') <= $now)
                     $totalSlpUnclaimed += $slp-> daily;
 
                 $totalSlpAll += $slp-> daily;
@@ -576,8 +576,9 @@ class AdminController extends Controller
         if(Carbon::now()->format('d') < 15){
             $statusBiweekly = false;
             $monthDate = Carbon::now()->subMonth()->format('n');
-            $selectDate = Carbon::now()->subMonth()->format('Y-m-d');
+            $selectDate = Carbon::now()->subMonth()->endOfMonth()->format('Y-m-d');
         }
+
 
 
         if($request->all()){

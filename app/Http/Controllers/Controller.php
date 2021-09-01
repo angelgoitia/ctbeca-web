@@ -45,7 +45,16 @@ class Controller extends BaseController
 
         if($resultApi && isset($resultApi['total_slp'])){
             $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
-            $dailyYesterday = count($player->totalSLP)== 0 ? 0 : $player->totalSLP[0]->total;
+            
+            if(count($player->totalSLP) == 0)
+                $dailyYesterday = 0;
+            else{
+                if($player->totalSLP[0]->total > intval($resultApi['total_slp']))
+                    $dailyYesterday = 0;
+                else
+                    $dailyYesterday = $player->totalSLP[0]->total;
+            }
+            
             $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
 
             if($now < $cutHours)
@@ -73,8 +82,9 @@ class Controller extends BaseController
                     ]
                 );
             
-            if($now == $last_claim)
-                $this->claimPlayer($player->id, intval($resultApi['total_slp']));
+            app('App\Http\Controllers\Controller')->claimPlayer($player->id, $last_claim);
+            $player->dateClaim = $last_claim;
+            $player->save();
                 
         }
 
@@ -109,15 +119,15 @@ class Controller extends BaseController
         return 0;
     }
 
-    public function claimPlayer($playerId, $totalClaim){
+    public function claimPlayer($playerId, $last_claim){
         $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
         $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
         $totalPlayer = 0;
         $totalManager = 0;
-
-        if(Carbon::now()->format('d') > 15){
-            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
-            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        
+        if(Carbon::parse($last_claim)->format('d') > 15){
+            $startDate = Carbon::parse($last_claim)->setDay(15)->format('Y-m-d');
+            $endDate = Carbon::parse($last_claim)->endOfMonth()->format('Y-m-d');
         }
 
         $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
@@ -130,10 +140,12 @@ class Controller extends BaseController
             $totalManager += $slp-> totalManager;
         }
 
+        $totalClaim = $totalManager + $totalPlayer;
+
         Claim::updateOrCreate(
             [
                 'player_id'     => $player->id,
-                'date'          => Carbon::now()->format('Y-m-d'),
+                'date'          => $last_claim,
             ],
             [
                 'total'         => $totalClaim,
