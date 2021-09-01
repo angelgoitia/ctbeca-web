@@ -62,7 +62,7 @@ class DailySlp extends Command
 
             $now = Carbon::now()->format('Y-m-d');
 
-            $rate;
+            $rate = null;
 
             if($player->group)
                 $rate  = Rate::where('admin_id', $player->group->id)->first();
