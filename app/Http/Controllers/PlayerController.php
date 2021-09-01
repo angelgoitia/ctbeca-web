@@ -137,30 +137,46 @@ class PlayerController extends Controller
             return redirect(route('admin.dashboard'));
         }
 
-        $orderBy = "ASC";
         $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
         $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
+        $statusBiweekly = true;
+        $initialDay = 1;
+        $finalDay = 15;
+        $months = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+        $monthDate = Carbon::now()->format('n');
+        $yearDate = Carbon::now()->format('Y');
 
         if(Carbon::now()->format('d') > 15){
             $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
             $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+            $statusBiweekly = false;
+            $initialDay = 16;
+            $finalDay = Carbon::now()->endOfMonth()->format('d');
         }
 
         if($request->all()){
-            $startDate=Carbon::createFromFormat('d/m/Y', $request->startDate)->format('Y-m-d');
-            $endDate=Carbon::createFromFormat('d/m/Y', $request->endDate)->format('Y-m-d');
-            $orderBy = $request->orderBy;
+            $statusBiweekly = filter_var($request->statusBiweekly, FILTER_VALIDATE_BOOLEAN);
+            $monthDate = $request->monthDate+1;
+            $yearDate = $request->yearDate;
+
+            if($statusBiweekly){
+                $startDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->format('Y-m-d');
+                $endDate = Carbon::parse($yearDate.'-'.$monthDate.'-15')->format('Y-m-d');
+            }else{
+                $startDate = Carbon::parse($yearDate.'-'.$monthDate.'-16')->format('Y-m-d');
+                $endDate = Carbon::parse($yearDate.'-'.$monthDate.'-1')->endOfMonth()->format('Y-m-d');
+            }
+
         }
 
-        $player = Player::whereId(Auth::guard('web')->id())->with(['totalSLP' => function($q) use($startDate, $endDate, $orderBy) {
+        $player = Player::whereId(Auth::guard('web')->id())->with(['totalSLP' => function($q) use($startDate, $endDate) {
             $q->whereDate('date', ">=",$startDate)
-                ->whereDate('date', "<=",$endDate)
-                ->orderBy('date', $orderBy);
+                ->whereDate('date', "<=",$endDate);
         }])->first();
 
 
         $statusMenu = "gameHistory";
-        return view('player.listDaily', compact('statusMenu', 'startDate', 'endDate', 'player', 'orderBy'));
+        return view('player.listDaily', compact('statusMenu','statusBiweekly', 'startDate', 'endDate', 'player', 'statusBiweekly', 'initialDay', 'finalDay', 'months', 'monthDate', 'yearDate'));
     }
 
     public function listClaim (Request $request)

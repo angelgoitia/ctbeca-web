@@ -235,6 +235,10 @@ class AdminController extends Controller
                     'dateClaim'     => Carbon::createFromFormat('d/m/Y', $request->dateClaim)->format('Y-m-d'),
                 ]
             );
+            
+            $player->admin_id      = intval($request->group);
+            $player->save();
+            
         }else{
             $player =  Player::where('wallet', str_replace("ronin:","", $request->wallet))->with('animals')->first();
             $player->name          = $request->name;
@@ -410,7 +414,7 @@ class AdminController extends Controller
 
         if($request->all()){
             $statusBiweekly = filter_var($request->statusBiweekly, FILTER_VALIDATE_BOOLEAN);
-            $monthDate = $request->monthDate;
+            $monthDate = $request->monthDate+1;
             $yearDate = $request->yearDate;
 
             $groupId = $request->groupId;
