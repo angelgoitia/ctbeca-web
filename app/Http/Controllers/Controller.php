@@ -142,16 +142,17 @@ class Controller extends BaseController
 
         $totalClaim = $totalManager + $totalPlayer;
 
-        Claim::updateOrCreate(
-            [
-                'player_id'     => $player->id,
-                'date'          => $last_claim,
-            ],
-            [
-                'total'         => $totalClaim,
-                'totalPlayer'   => $totalPlayer,
-                'totalManager'  => $totalManager,
-            ]
-        );
+        if($totalClaim > 0 && $totalPlayer > 0 && $totalManager > 0 )
+            Claim::updateOrCreate(
+                [
+                    'player_id'     => $player->id,
+                    'date'          => $last_claim,
+                ],
+                [
+                    'total'         => $totalClaim,
+                    'totalPlayer'   => $totalPlayer,
+                    'totalManager'  => $totalManager,
+                ]
+            );
     }
 }

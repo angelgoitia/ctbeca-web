@@ -219,6 +219,15 @@ class AdminController extends Controller
             $file = base64_decode($request->image);
         }
 
+        if(Auth::guard('admin')->check()){
+            if(Auth::guard('admin')->id() == 1)
+                $admin_id = intval($request->group);
+            else
+                $admin_id = Auth::guard('admin')->id();
+        }else{
+            $admin_id = intval($request->group);
+        }
+
         if(empty($request->playerSelect))
         {
             $player =  Player::create(
@@ -231,12 +240,12 @@ class AdminController extends Controller
                     'emailGame'     => $request->emailGame,
                     'passwordGame'  => bcrypt($request->passwordGame),
                     'wallet'        => str_replace("ronin:","", $request->wallet),
-                    'admin_id'      => intval($request->group),
+                    'admin_id'      => $admin_id,
                     'dateClaim'     => Carbon::createFromFormat('d/m/Y', $request->dateClaim)->format('Y-m-d'),
                 ]
             );
             
-            $player->admin_id      = intval($request->group);
+            $player->admin_id      = $admin_id;
             $player->save();
             
         }else{
@@ -248,7 +257,7 @@ class AdminController extends Controller
             $player->reference     = $reference;
             $player->emailGame     = $request->emailGame;
             $player->passwordGame  = bcrypt($request->passwordGame);
-            $player->admin_id      = intval($request->group);
+            $player->admin_id      = $admin_id;
             $player->dateClaim     = Carbon::createFromFormat('d/m/Y', $request->dateClaim)->format('Y-m-d');
             $player->save();
         }
