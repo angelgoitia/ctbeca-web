@@ -55,8 +55,8 @@ class AdminController extends Controller
         }
 
         $now = Carbon::now()->format('Y-m-d');
-
-        if(Auth::guard('admin')->id() == 1)
+        /* Update SLP Daily */
+        /* if(Auth::guard('admin')->id() == 1)
             $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
@@ -65,7 +65,7 @@ class AdminController extends Controller
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
 
-        app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
+        app('App\Http\Controllers\Controller')->updateSlpPlayers($players); */
 
         $priceSlp = app('App\Http\Controllers\Controller')->getPriceSlp();
 
@@ -462,30 +462,42 @@ class AdminController extends Controller
 
     public function newSLP(Request $request)
     {
+        $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
+
+        if(Carbon::now()->format('d') > 15)
+            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+
+        $idSlp = $request->idSlp;
+        $selectPlayer = array();
+        $status = true;
+
+        if($request->idPlayer > 0){
+            $selectPlayer = Player::whereId($request->idPlayer)->with(['totalSLP' => function($q) use($idSlp) {
+                $q->whereId($idSlp);
+            }])->first();
+            $status = false;
+        }
+
         if(Auth::guard('admin')->id() == 1)
             $players = Player::all();
         else
             $players = Player::where('admin_id', Auth::guard('admin')->id())->get(); 
 
-        $returnHTML=view('admin.modal.newSlp', compact('players'))->render();
-        return response()->json(array('html'=>$returnHTML));
+        $returnHTML=view('admin.modal.newSlp', compact('players', 'selectPlayer'))->render();
+        return response()->json(array('html'=>$returnHTML, 'startDate' => $startDate, 'statusDate' => $status));
     }
 
     public function verifySLP(Request $request)
     {
-        // if date is used
-        //$date = Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
-
-        // if date with carbon is used
-        $date = $request->date;
+        $date = Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
 
         $player = Player::whereId($request->id)->with(['totalSLP' => function($q) use($date) {
             $q->whereDate('date', $date);
         }])->first();
 
-        if(count($player->totalSLP) == 0 && $request->total >0)
+        if(count($player->totalSLP) == 0 && $request->totalDaily >= 0)
             return response()->json(['statusCode' => 201, 'statusTotal' => true]);
-        else if(count($player->totalSLP) == 0 && $request->total <0)
+        else if(count($player->totalSLP) == 0 && $request->totalDaily <0)
             return response()->json(['statusCode' => 201, 'statusTotal' => false]);
         else
             return response()->json(['statusCode' => 401,]);
@@ -493,29 +505,57 @@ class AdminController extends Controller
 
     public function formSLP(Request $request)
     {
-        // if date is used
-        //$date = Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
+        $date = Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d');
+        $selectPlayer = json_decode($request->selectPlayer);
 
-        // if date with carbon is used
-        $date = $request->date;
+        if($selectPlayer)
+            $playerId = $selectPlayer->id;
+        else
+            $playerId = $request->playerId;
 
-        $player = Player::whereId($request->playerId)->with('lastSLP')->first();
-        $totaldaily = $player->lastSLP->total + intval($request->total);
+        $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($date) {
+            $q->whereDate('date', '<', $date);
+        }])->first();
 
-        TotalSlp::updateOrCreate(
-            [
-                'player_id'     => $request->playerId,
-                'date'          => $date,
-                'total'     => $totaldaily,
-                'daily'     => intval($request->total),
-            ]
-        );
+        $totaldaily = intval($request->totalDaily);
+        $total = count($player->totalSLP) > 0? $player->totalSLP[0]->total + $totaldaily : $totaldaily;
+        
+        $rate = null;
+
+        if($player->group)
+            $rate  = Rate::where('admin_id', $player->group->id)->first();
+
+        if(!$rate)
+            $rate  = Rate::where('admin_id', 1)->first();
+
+
+        if($selectPlayer)
+            TotalSlp::whereId($selectPlayer->total_s_l_p[0]->id)->update(
+                [
+                    'date'          => $date,
+                    'total'         => $total,
+                    'daily'         => $totaldaily,
+                    'totalManager'  => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
+                ]
+            );
+        else
+            TotalSlp::create(
+                [
+                    'player_id'     => $playerId,
+                    'date'          => $date,
+                    'total'         => $total,
+                    'daily'         => $totaldaily,
+                    'totalManager'  => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
+                ]
+            );
+
+        app('App\Http\Controllers\Controller')->updateSlpManual($player->id, $player->dateClaim);
 
         if(Carbon::now()->format('d') == 15 || Carbon::now()->format('d') == Carbon::now()->endOfMonth()->format('d')){
             
-            if(Carbon::parse($request->date)->format('d') <= 15 || (Carbon::parse($request->date)->format('d') > 15 && Carbon::parse($request->date)->endOfMonth()->format('d') >28 ))
+            if(Carbon::createFromFormat('d/m/Y', $request->date)->format('d') <= 15 || (Carbon::createFromFormat('d/m/Y', $request->date)->format('d') > 15 && Carbon::createFromFormat('d/m/Y', $request->date)->endOfMonth()->format('d') > 28 ))
                 $day = 15;
-            else if (Carbon::parse($request->date)->format('d') > 15 && Carbon::parse($request->date)->endOfMonth()->format('d') == 28)
+            else if (Carbon::createFromFormat('d/m/Y', $request->date)->format('d') > 15 && Carbon::createFromFormat('d/m/Y', $request->date)->endOfMonth()->format('d') == 28)
                 $day = 13;
 
             $date = Carbon::parse($player->dateClaim);
@@ -523,7 +563,7 @@ class AdminController extends Controller
 
             $diff = $date->diffInDays($now);
             if($diff >= $day && $player->tokenFCM){
-                app('App\Http\Controllers\Controller')->claimPlayer($player->id, $totaldaily);
+                app('App\Http\Controllers\Controller')->claimPlayer($player->id, $total);
             }
         }
 
@@ -684,7 +724,5 @@ class AdminController extends Controller
         return redirect()->route('admin.listGroup');
     }
 
-    public function apiSLP(){
-    }
-
+    public function apiSLP(){}
 }

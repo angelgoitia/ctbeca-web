@@ -89,11 +89,6 @@
                 </div>
             </div>
         </div>
-        <div class="row btn-newSLP">
-            <div class="col">
-                <button type='button' class="btn btn-bottom" onclick="newSlp()"><i class="material-icons">edit</i> Crear Nueva control</button>
-            </div>
-        </div>
         <div class="tableShow">
             <table id="table_id" class="table table-bordered display" style="width:100%;">
                 <thead>

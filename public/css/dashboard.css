@@ -316,3 +316,7 @@ th:first-child .outerDiv {
 .btn-fab {
     background-color: #00cc5f !important;
 }
+
+.pointer {
+    cursor: pointer;
+}

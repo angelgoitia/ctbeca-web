@@ -113,7 +113,7 @@
         </div>
         <div class="row btn-newSLP">
             <div class="col">
-                <button type='button' class="btn btn-bottom" onclick="newSlp()"><i class="material-icons">edit</i> Crear Nueva control</button>
+                <button type='button' class="btn btn-bottom" onclick="newSlp(0,0)"><i class="material-icons">edit</i> Crear Nueva control</button>
             </div>
         </div>
         <div class="tableShow">
@@ -142,7 +142,11 @@
 
                                 @foreach($player->totalSlp as $key => $item)
                                     @if(Carbon::parse($item->date)->format('Y-m-d') == Carbon::parse($writeDate)->format('Y-m-d') )
-                                        <td>{{$item->daily}}</td>
+                                        @if(Carbon::parse($item->date)->format('Y-m-d') > Carbon::parse($player->dateClaim)->format('Y-m-d'))
+                                            <td class="pointer" onclick="newSlp({{$player->id}},{{$item->id}})">{{$item->daily}}</td>
+                                        @else
+                                            <td>{{$item->daily}}</td>
+                                        @endif
                                         @php
                                             $status = true;
                                             $totalUnclaim += $item->daily;
@@ -179,6 +183,7 @@
     <script> 
         $( ".loader" ).fadeOut("slow"); 
         var statusMenu = "{{$statusMenu}}";
+        var startDate, statusDate;
         
         $(document).ready( function () {
 
@@ -210,13 +215,15 @@
         });
         $(".main-panel").perfectScrollbar('update');
 
-        function newSlp()
+        function newSlp(idPlayer, idSlp)
         {
             $.ajax({
                 url: "{{route('admin.newSLP')}}", 
-                data: {"_token": "{{ csrf_token() }}",},
+                data: {"_token": "{{ csrf_token() }}", "idPlayer" : idPlayer, "idSlp" : idSlp },
                 type: "GET",
             }).done(function(data){
+                startDate = data.startDate;
+                statusDate = data.statusDate;
                 $('#newFormSLP').html(data.html);
                 $('#slpModal').modal('show'); 
             }).fail(function(result){

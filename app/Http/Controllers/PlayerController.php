@@ -39,11 +39,12 @@ class PlayerController extends Controller
         }
 
         $now = Carbon::now()->format('Y-m-d');
-        $player = Player::whereId(Auth::guard('web')->id())->with('group')->with(['totalSLP' => function($q) use($now) {
+        /* Update SLP Daily */
+        /* $player = Player::whereId(Auth::guard('web')->id())->with('group')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
 
-        app('App\Http\Controllers\Controller')->updateSlp($player);
+        app('App\Http\Controllers\Controller')->updateSlp($player); */
 
         $priceSlp = app('App\Http\Controllers\Controller')->getPriceSlp();
 

@@ -90,6 +90,39 @@ class Controller extends BaseController
 
     }
 
+    public function updateSlpManual($playerId, $dateClaim){
+
+        $startDate = Carbon::parse($dateClaim)->setDay(2)->format('Y-m-d');
+        $endDate = Carbon::now()->format('Y-m-d');
+
+        $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
+            $q->whereDate('date', ">=",$startDate)
+                ->whereDate('date', "<=",$endDate)
+                ->orderby('date', 'ASC');
+        }])->first();
+
+        foreach($player->totalSLP as $key => $item){
+            if($key > 0){
+                $totaldaily = intval($item->daily);
+                $total = count($player->totalSLP) >0 ? $player->totalSLP[$key-1]->total + $totaldaily : $totaldaily;
+
+                $rate = null;
+
+                if($player->group)
+                    $rate  = Rate::where('admin_id', $player->group->id)->first();
+
+                if(!$rate)
+                    $rate  = Rate::where('admin_id', 1)->first();
+
+                
+                $item->total = $total;
+                $item->save();
+            }
+        }
+
+
+    }
+
     public function getPriceSlp(){
         $urlApi = [
             'https://api.binance.com', 'https://api1.binance.com', 'https://api2.binance.com', 'https://api3.binance.com'
@@ -132,7 +165,8 @@ class Controller extends BaseController
 
         $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
             $q->whereDate('date', ">=",$startDate)
-                ->whereDate('date', "<=",$endDate);
+                ->whereDate('date', "<=",$endDate)
+                ->orderby('date', 'ASC');
         }])->first();
 
         foreach($player->totalSLP as $slp){
@@ -146,7 +180,7 @@ class Controller extends BaseController
             Claim::updateOrCreate(
                 [
                     'player_id'     => $player->id,
-                    'date'          => $last_claim,
+                    'date'          => Carbon::now()->format('Y-m-d'),
                 ],
                 [
                     'total'         => $totalClaim,
