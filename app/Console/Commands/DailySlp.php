@@ -42,7 +42,8 @@ class DailySlp extends Command
      */
     public function handle()
     {
-        $listPlayer = array();
+        /* Update SLP Daily*/
+        /* $listPlayer = array();
         $status = 0;
         $now = Carbon::now()->format('Y-m-d');
         $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
@@ -112,7 +113,7 @@ class DailySlp extends Command
             $this->info('El corte se ha realizado correctamente');
         }else{
             $this->info('El corte se ha realizado '.$status.' de '.count($players).' Becados');
-        }
+        } */
             
     }
 }
