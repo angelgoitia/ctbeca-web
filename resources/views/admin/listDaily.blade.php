@@ -183,7 +183,7 @@
     <script> 
         $( ".loader" ).fadeOut("slow"); 
         var statusMenu = "{{$statusMenu}}";
-        var startDate, statusDate;
+        var startDate, statusDate, players;
         
         $(document).ready( function () {
 
@@ -224,6 +224,7 @@
             }).done(function(data){
                 startDate = data.startDate;
                 statusDate = data.statusDate;
+                players = data.players;
                 $('#newFormSLP').html(data.html);
                 $('#slpModal').modal('show'); 
             }).fail(function(result){

@@ -484,7 +484,7 @@ class AdminController extends Controller
             $players = Player::where('admin_id', Auth::guard('admin')->id())->get(); 
 
         $returnHTML=view('admin.modal.newSlp', compact('players', 'selectPlayer'))->render();
-        return response()->json(array('html'=>$returnHTML, 'startDate' => $startDate, 'statusDate' => $status));
+        return response()->json(array('html'=>$returnHTML, 'startDate' => $startDate, 'statusDate' => $status, 'players' => $players));
     }
 
     public function verifySLP(Request $request)

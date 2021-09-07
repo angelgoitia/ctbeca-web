@@ -77,9 +77,8 @@
      
     $(document).ready( function () {
         
-        var date = moment(startDate, "YYYY-MM-DD");
-
-        if(statusDate)
+        if(statusDate){
+            var date = moment(startDate, "YYYY-MM-DD");
             $('#datepicker-SLP').datepicker({
                 orientation: "bottom auto",
                 startDate: date.toDate(),
@@ -88,6 +87,27 @@
                 autoclose: true,
                 todayHighlight: true
             });
+        }
+
+        $('#playerId').on('change', function() {
+            var selectplayerId = $('#playerId').val();
+            $.each(players, function( index, value ) {
+                if(value.id == selectplayerId){
+                    $('#datepicker-SLP').datepicker("destroy");
+                    var date = moment(value.dateClaim, "YYYY-MM-DD").add(1, 'days');
+                    console.log(date.toDate());
+                    $('#datepicker-SLP').datepicker({
+                        orientation: "bottom auto",
+                        startDate: date.toDate(),
+                        endDate: new Date(),
+                        language: "es",
+                        autoclose: true,
+                        todayHighlight: true
+                    });
+                    return false;
+                }    
+            });
+        });
 
         $("#btn-submit-slp").click(function (e) { 
             e.preventDefault();
