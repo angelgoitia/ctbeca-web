@@ -724,5 +724,18 @@ class AdminController extends Controller
         return redirect()->route('admin.listGroup');
     }
 
-    public function apiSLP(){}
+    public function apiSLP(){
+        /* $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
+        $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
+        
+        if(Carbon::now()->format('d') > 15){
+            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+            $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
+        }
+
+        if(Carbon::parse('2021-08-31') >= $startDate && Carbon::parse('2021-08-31') <= $endDate)
+            dd("entro");
+        else
+            dd("no entro"); */
+    }
 }

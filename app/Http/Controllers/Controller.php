@@ -153,8 +153,8 @@ class Controller extends BaseController
     }
 
     public function claimPlayer($playerId, $last_claim){
-        $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
-        $endDate = Carbon::now()->setDay(15)->format('Y-m-d');
+        $startDate = Carbon::parse($last_claim)->setDay(1)->format('Y-m-d');
+        $endDate = Carbon::parse($last_claim)->setDay(15)->format('Y-m-d');
         $totalPlayer = 0;
         $totalManager = 0;
         
@@ -162,7 +162,7 @@ class Controller extends BaseController
             $startDate = Carbon::parse($last_claim)->setDay(15)->format('Y-m-d');
             $endDate = Carbon::parse($last_claim)->endOfMonth()->format('Y-m-d');
         }
-
+        
         $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
             $q->whereDate('date', ">=",$startDate)
                 ->whereDate('date', "<=",$endDate)
