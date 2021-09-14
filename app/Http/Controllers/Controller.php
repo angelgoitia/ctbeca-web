@@ -25,15 +25,6 @@ class Controller extends BaseController
     public function updateSlp($player){
         $now = Carbon::now();
         $cutHours = Carbon::parse($now->year.'-'.$now->month.'-'.$now->day.' 20:00:00');
-
-        $url = "https://api.lunaciarover.com/stats/0x".$player->wallet;
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-        
-        $resultApi = json_decode(curl_exec($ch), true);
-        curl_close($ch); 
         
         $rate = null;
 
@@ -43,19 +34,43 @@ class Controller extends BaseController
         if(!$rate)
             $rate  = Rate::where('admin_id', 1)->first();
 
-        if($resultApi && isset($resultApi['total_slp'])){
-            $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
+        for($i = 0; $i <= 1; $i++){
+            if($i == 0){
+                $url = "https://api.lunaciarover.com/stats/0x".$player->wallet;
+            }else{
+                $url = "https://game-api.skymavis.com/game-api/clients/0x".$player->wallet."/items/1";
+            }
+
+            $ch = curl_init($url);
+        
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
             
+            $resultApi = json_decode(curl_exec($ch), true);
+            curl_close($ch); 
+
+            if($resultApi && isset($resultApi['total_slp'])){
+                $last_claim = Carbon::createFromTimestamp($resultApi['last_claim_timestamp'])->format('Y-m-d');
+                $total_slp = intval($resultApi['total_slp']);
+                break;
+            }else if($resultApi && isset($resultApi['total'])){
+                $last_claim = Carbon::createFromTimestamp($resultApi['last_claimed_item_at'])->format('Y-m-d');
+                $total_slp = intval($resultApi['total']);
+                break;
+            }
+        }
+
+        if(isset($last_claim) && isset($total_slp)){
             if(count($player->totalSLP) == 0)
                 $dailyYesterday = 0;
             else{
-                if($player->totalSLP[0]->total > intval($resultApi['total_slp']))
+                if($player->totalSLP[0]->total > $total_slp)
                     $dailyYesterday = 0;
                 else
                     $dailyYesterday = $player->totalSLP[0]->total;
             }
             
-            $totaldaily = intval($resultApi['total_slp']) - $dailyYesterday;
+            $totaldaily = $total_slp - $dailyYesterday;
 
             if($now < $cutHours)
                 TotalSlp::updateOrCreate(
@@ -64,7 +79,7 @@ class Controller extends BaseController
                         'date'          => $now->format('Y-m-d'),
                     ],
                     [
-                        'total'         => intval($resultApi['total_slp']),
+                        'total'         => $total_slp,
                         'daily'         => $totaldaily,
                         'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
@@ -76,7 +91,7 @@ class Controller extends BaseController
                         'date'          => $now->addDay()->format('Y-m-d'),
                     ],
                     [
-                        'total'         => intval($resultApi['total_slp']),
+                        'total'         => $total_slp,
                         'daily'         => $totaldaily,
                         'totalManager'   => $totaldaily <= $rate->lessSlp ? ($totaldaily - ($totaldaily * $rate->lessPercentage) / 100) : ($totaldaily - ($totaldaily * $rate->greaterPercentage) / 100), 
                     ]
@@ -85,7 +100,6 @@ class Controller extends BaseController
             app('App\Http\Controllers\Controller')->claimPlayer($player->id, $last_claim);
             $player->dateClaim = $last_claim;
             $player->save();
-                
         }
 
     }
@@ -176,7 +190,7 @@ class Controller extends BaseController
 
         $totalClaim = $totalManager + $totalPlayer;
 
-        if($totalClaim > 0 && $totalPlayer > 0 && $totalManager > 0 )
+        if($totalClaim > 0 && $totalPlayer > 0 && $totalManager > 0  && Carbon::now() >= $startDate && Carbon::now() <= $endDate )
             Claim::updateOrCreate(
                 [
                     'player_id'     => $player->id,
