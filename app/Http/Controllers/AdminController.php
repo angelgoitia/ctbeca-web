@@ -56,7 +56,7 @@ class AdminController extends Controller
 
         $now = Carbon::now()->format('Y-m-d');
         /* Update SLP Daily */
-        /* if(Auth::guard('admin')->id() == 1)
+        if(Auth::guard('admin')->id() == 1)
             $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
@@ -65,7 +65,7 @@ class AdminController extends Controller
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
 
-        app('App\Http\Controllers\Controller')->updateSlpPlayers($players); */
+        app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
 
         $priceSlp = app('App\Http\Controllers\Controller')->getPriceSlp();
 
@@ -414,7 +414,7 @@ class AdminController extends Controller
         $groups = User::where('id', '!=', 1)->get();
 
         if(Carbon::now()->format('d') > 15){
-            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+            $startDate = Carbon::now()->setDay(16)->format('Y-m-d');
             $endDate = Carbon::now()->endOfMonth()->format('Y-m-d');
             $statusBiweekly = false;
             $initialDay = 16;
@@ -437,6 +437,7 @@ class AdminController extends Controller
             }
 
         }
+
 
         if(Auth::guard('admin')->id() != 1)
             $groupId = Auth::guard('admin')->id();
@@ -465,7 +466,7 @@ class AdminController extends Controller
         $startDate = Carbon::now()->setDay(1)->format('Y-m-d');
 
         if(Carbon::now()->format('d') > 15)
-            $startDate = Carbon::now()->setDay(15)->format('Y-m-d');
+            $startDate = Carbon::now()->setDay(16)->format('Y-m-d');
 
         $idSlp = $request->idSlp;
         $selectPlayer = array();
@@ -552,18 +553,17 @@ class AdminController extends Controller
         app('App\Http\Controllers\Controller')->updateSlpManual($player->id, $player->dateClaim);
 
         if(Carbon::now()->format('d') == 15 || Carbon::now()->format('d') == Carbon::now()->endOfMonth()->format('d')){
-            
-            if(Carbon::createFromFormat('d/m/Y', $request->date)->format('d') <= 15 || (Carbon::createFromFormat('d/m/Y', $request->date)->format('d') > 15 && Carbon::createFromFormat('d/m/Y', $request->date)->endOfMonth()->format('d') > 28 ))
-                $day = 15;
-            else if (Carbon::createFromFormat('d/m/Y', $request->date)->format('d') > 15 && Carbon::createFromFormat('d/m/Y', $request->date)->endOfMonth()->format('d') == 28)
+            $day = 15;
+
+            if (Carbon::createFromFormat('d/m/Y', $request->date)->format('d') > 15 && Carbon::createFromFormat('d/m/Y', $request->date)->endOfMonth()->format('d') == 28)
                 $day = 13;
 
             $date = Carbon::parse($player->dateClaim);
             $now = Carbon::now();
 
             $diff = $date->diffInDays($now);
-            if($diff >= $day && $player->tokenFCM){
-                app('App\Http\Controllers\Controller')->claimPlayer($player->id, $total);
+            if($diff >= $day){
+                app('App\Http\Controllers\Controller')->claimPlayer($player->id, $player->dateClaim);
             }
         }
 
@@ -624,7 +624,6 @@ class AdminController extends Controller
         $yearDate = Carbon::now()->format('Y');
         $groups = User::where('id', '!=', 1)->get();
         $groupId = 0;
-
 
         if(Carbon::now()->format('d') < 15){
             $statusBiweekly = false;

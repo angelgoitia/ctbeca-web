@@ -43,7 +43,7 @@ class DailySlp extends Command
     public function handle()
     {
         /* Update SLP Daily*/
-        /* $listPlayer = array();
+        $listPlayer = array();
         $status = 0;
         $now = Carbon::now()->format('Y-m-d');
         $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
@@ -102,9 +102,18 @@ class DailySlp extends Command
                     ]
                 );
 
-                app('App\Http\Controllers\Controller')->claimPlayer($player->id, $last_claim);
-                $player->dateClaim = $last_claim;
-                $player->save();
+                $date = Carbon::parse($player->dateClaim);
+                $now = Carbon::now();
+                $day = 15;
+
+                if (Carbon::now()->format('d') > 15 && Carbon::now()->endOfMonth()->format('d') == 28)
+                    $day = 13;
+
+                $diff = $date->diffInDays($now);
+
+                if($diff >= $day){
+                    app('App\Http\Controllers\Controller')->claimPlayer($player->id, $player->dateClaim);
+                }
                 
                 $status++;
                 
@@ -123,7 +132,7 @@ class DailySlp extends Command
             $this->info('El corte se ha realizado correctamente');
         }else{
             $this->info('El corte se ha realizado '.$status.' de '.count($players).' Becados');
-        } */
+        } 
             
     }
 }

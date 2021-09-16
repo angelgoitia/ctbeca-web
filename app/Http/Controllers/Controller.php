@@ -167,14 +167,14 @@ class Controller extends BaseController
     }
 
     public function claimPlayer($playerId, $last_claim){
-        $startDate = Carbon::parse($last_claim)->setDay(1)->format('Y-m-d');
-        $endDate = Carbon::parse($last_claim)->setDay(15)->format('Y-m-d');
+        $startDate = Carbon::parse($last_claim)->setDay(1)->addMonth()->format('Y-m-d');
+        $endDate = Carbon::parse($last_claim)->setDay(15)->addMonth()->format('Y-m-d');
         $totalPlayer = 0;
         $totalManager = 0;
         
-        if(Carbon::parse($last_claim)->format('d') > 15){
-            $startDate = Carbon::parse($last_claim)->setDay(15)->format('Y-m-d');
-            $endDate = Carbon::parse($last_claim)->endOfMonth()->format('Y-m-d');
+        if(Carbon::parse($last_claim)->format('d') <= 15){
+            $startDate = Carbon::parse($last_claim)->setDay(16)->addMonth()->format('Y-m-d');
+            $endDate = Carbon::parse($last_claim)->addMonth()->endOfMonth()->format('Y-m-d');
         }
         
         $player = Player::whereId($playerId)->with(['totalSLP' => function($q) use($startDate, $endDate) {
@@ -190,7 +190,7 @@ class Controller extends BaseController
 
         $totalClaim = $totalManager + $totalPlayer;
 
-        if($totalClaim > 0 && $totalPlayer > 0 && $totalManager > 0  && Carbon::now() >= $startDate && Carbon::now() <= $endDate )
+        if($totalClaim > 0 && $totalPlayer > 0 && $totalManager > 0){
             Claim::updateOrCreate(
                 [
                     'player_id'     => $player->id,
@@ -202,5 +202,9 @@ class Controller extends BaseController
                     'totalManager'  => $totalManager,
                 ]
             );
+
+            $player->dateClaim = Carbon::now()->format('Y-m-d');
+            $player->save();
+        }
     }
 }

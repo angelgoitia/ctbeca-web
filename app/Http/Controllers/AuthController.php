@@ -46,7 +46,7 @@ class AuthController extends Controller
         if($user){
             $admins = User::where('id', '!=', 1)->where('id', '!=', $user->id)->get();
             /* Update SLP Daily */
-            /* if($user->id == 1)
+            if($user->id == 1)
                 $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                     $q->where('date', "!=", $now)->orderBy('date','DESC'); 
                 }])->get();
@@ -55,7 +55,7 @@ class AuthController extends Controller
                     $q->where('date', "!=", $now)->orderBy('date','DESC'); 
                 }])->get();
 
-            app('App\Http\Controllers\Controller')->updateSlpPlayers($players); */
+            app('App\Http\Controllers\Controller')->updateSlpPlayers($players);
             
             if($user->id == 1)
                 $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->with('group')->get();
@@ -78,7 +78,7 @@ class AuthController extends Controller
             ]);
         }else{
             /* Update SLP Daily */
-            /* app('App\Http\Controllers\Controller')->updateSlp($player); */
+            app('App\Http\Controllers\Controller')->updateSlp($player);
             $player = Player::where("emailGame", request('email'))->with('totalSLP')->with('animals')->with('claimsApi')->with('claimsApi')->with('group')->first();
             return response()->json([
                 'statusCode' => 201,
@@ -105,7 +105,7 @@ class AuthController extends Controller
         $now = Carbon::now()->format('Y-m-d');
 
         /* Update SLP Daily */
-        /* if($request->user()->id == 1)
+        if($request->user()->id == 1)
             $players = Player::with('group')->with(['totalSLP' => function($q) use($now) {
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
@@ -114,7 +114,7 @@ class AuthController extends Controller
                 $q->where('date', "!=", $now)->orderBy('date','DESC'); 
             }])->get();
 
-        app('App\Http\Controllers\Controller')->updateSlpPlayers($players); */
+        app('App\Http\Controllers\Controller')->updateSlpPlayers($players); 
 
         if($request->user()->id == 1)
             $players = Player::with('totalSLP')->with('animals')->with('claimsApi')->with('group')->get();
@@ -136,11 +136,11 @@ class AuthController extends Controller
     {
         $now = Carbon::now()->format('Y-m-d');
         /* Update SLP Daily */
-        /* $player = Player::whereId($request->user()->id)->with('group')->with(['totalSLP' => function($q) use($now) {
+        $player = Player::whereId($request->user()->id)->with('group')->with(['totalSLP' => function($q) use($now) {
             $q->where('date', "!=", $now)->orderBy('date','DESC'); 
         }])->first();
 
-        app('App\Http\Controllers\Controller')->updateSlp($player); */
+        app('App\Http\Controllers\Controller')->updateSlp($player);
         
         $player = Player::whereId($request->user()->id)->with('totalSLP')->with('animals')->with('claimsApi')->with('group')->first();
 
